@@ -133,51 +133,121 @@ Screenshots of the application can be placed in the repository:
 
 ---
 
+## 📁 Project Directory Structure
+
+```text
+ADAPTIVE-PROBE-GENETIC-ALGORITHM-FOR-TSP/
+├── backend/                  # Production FastAPI web backend & algorithm
+│   ├── app.py                # Authoritative ASGI application entry point
+│   ├── config.py             # Centralized settings & LKH limits
+│   ├── api/                  # API route handlers (/api/state, /api/run, /api/pdf)
+│   ├── schemas/              # Pydantic models & request/response contracts
+│   ├── services/             # Experiment lifecycle & background runner service
+│   ├── optimizer/            # Genetic algorithm, PMG, and bounded LKH solver
+│   ├── reports/              # ReportLab research PDF generator
+│   └── storage/              # Artifact persistence & ZIP packager
+│
+├── frontend/                 # Crystal Glassmorphism UI Dashboard
+│   ├── index.html            # Authoritative HTML5 interface
+│   ├── style.css             # Glassmorphism design system
+│   ├── app.js                # Frontend controllers, canvas rendering & polling
+│   └── assets/               # CSS, JS, and image assets
+│
+├── tests/                    # Comprehensive Automated Test Suite
+│   ├── unit/                 # Unit tests (bounded LKH, timeout, stopping criteria)
+│   ├── integration/          # End-to-end integration & API pipeline tests
+│   ├── fixtures/             # Deterministic TSPLIB benchmark instances
+│   └── conftest.py           # Pytest shared fixtures
+│
+├── research/                 # Preserved Original Research & Ablation Experiments
+│   ├── notebooks/            # Original exploratory Jupyter notebooks
+│   ├── datasets/             # Full TSPLIB benchmark dataset files (.tsp)
+│   ├── ablation/             # 10-dataset ablation study scripts & evaluations
+│   └── documentation/        # Research study maps and notes
+│
+├── scripts/                  # Operations & Validation Tooling
+│   ├── smoke_test.py         # End-to-end API, experiment & PDF export test
+│   ├── validate_project.py   # Pre-flight architecture and syntax validator
+│   └── benchmark_lkh.py      # Reproducible LKH performance benchmarking
+│
+├── data/                     # Local experiment data & temporary uploads
+│   ├── uploads/              # Uploaded user datasets
+│   └── runs/                 # Persisted experiment run directories
+│
+├── .github/workflows/        # Production GitHub Actions CI/CD pipeline
+│   └── ci-cd.yml             # Automated linting, testing, and Render deployment
+│
+├── requirements.txt          # Authoritative production dependencies
+├── requirements-dev.txt      # Development & testing dependencies
+├── pyproject.toml            # Project packaging specification
+├── render.yaml               # Render Cloud Blueprint definition
+├── .python-version           # Recommended Python runtime (3.10.11)
+├── .env.example              # Environment variables template
+├── .gitignore                # Comprehensive Git ignore rules
+├── run_windows.bat           # Windows 1-click launcher
+├── run_mac_linux.sh          # macOS / Linux launcher
+└── run_console.py            # Cross-platform Python launcher
+```
+
+---
+
 ## 🚀 Running the Application
 
-### 1. Extract the ZIP
+### 1. Install Dependencies
 
-Extract:
+Using Python 3.10+:
 
-```text
-adaptive_evolution_study_editor.zip
+```bash
+pip install -r requirements.txt
 ```
 
-### 2. Open the project
+*(For development and test tools: `pip install -r requirements-dev.txt`)*
 
-Open the extracted folder in VS Code.
+### 2. Launch the Application
 
-### 3. Open the terminal
-
-In VS Code:
-
-```text
-Terminal → New Terminal
-```
-
-### 4. Start the application
-
-On Windows:
-
+**On Windows:**
+Double-click `run_windows.bat` or run:
 ```powershell
 .\run_windows.bat
 ```
 
-On macOS/Linux:
-
+**On macOS / Linux:**
 ```bash
+chmod +x run_mac_linux.sh
 ./run_mac_linux.sh
 ```
 
-### 5. Open the application
+**Direct Python / Uvicorn Command:**
+```bash
+python -m uvicorn backend.app:app --host 0.0.0.0 --port 8000
+```
 
-After the server starts, open:
+### 3. Open the Console
 
+Navigate to:
 ```text
 http://127.0.0.1:8000
 ```
 
-The Adaptive Evolution Study Editor will open in the browser.
+---
+
+## 🧪 Verification & Tooling Scripts
+
+Run pre-flight validation and tests locally with a single command:
+
+```bash
+# 1. Validate full project structure and syntax
+python scripts/validate_project.py
+
+# 2. Run full automated test suite (25 tests)
+python -m unittest discover -s tests -p "test_*.py" -v
+
+# 3. Run complete end-to-end smoke test (API, 3 generations, PDF report, ZIP export)
+python scripts/smoke_test.py
+
+# 4. Run reproducible LKH benchmark
+python scripts/benchmark_lkh.py
+```
 
 ---
 

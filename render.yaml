@@ -3,12 +3,12 @@ services:
     name: adaptive-evolution-research-editor
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.11
       - key: PYTHONPATH
-        value: ./adaptive_evolution_research_console_v4/adaptive_evolution_research_editor_v4
+        value: .
       - key: LKH_ENABLED
         value: "true"
       - key: LKH_MAX_SECONDS_PER_CALL
@@ -23,4 +23,3 @@ services:
         value: "50"
       - key: LKH_RUNS
         value: "1"
-

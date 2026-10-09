@@ -1,24 +1,24 @@
 """
 Adaptive Evolution Research Console - Root Python Launcher
-Allows running directly in VS Code by clicking the Play button (Run Python File)
-or by running `python run_console.py` from any terminal.
+Allows running directly by clicking the Play button (Run Python File)
+or by executing `python run_console.py` from any terminal.
 """
 from __future__ import annotations
 
 import os
-import sys
-import subprocess
-import webbrowser
-import time
 import socket
+import subprocess
+import sys
+import threading
+import time
+import webbrowser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-APP_DIR = ROOT / "adaptive_evolution_research_console_v4" / "adaptive_evolution_research_editor_v4"
-VENV_PYTHON = APP_DIR / ".venv" / "Scripts" / "python.exe"
+VENV_PYTHON = ROOT / ".venv" / ("Scripts" if sys.platform == "win32" else "bin") / ("python.exe" if sys.platform == "win32" else "python")
 
 
-def free_port(port=8000):
+def free_port(port: int = 8000):
     """Frees port if held by a previous dangling process on Windows."""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -38,28 +38,21 @@ def free_port(port=8000):
 
 
 def main():
-    if not APP_DIR.exists():
-        print(f"[!] Error: Application directory not found at: {APP_DIR}")
-        sys.exit(1)
-
     free_port(8000)
 
-    # Use virtual environment python if available, else current python interpreter
     py_exec = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
 
     print("=" * 65)
     print("  Adaptive Evolution Research Console v4.2")
-    print("  Premium Crystal Glassmorphism UI & Algorithm Core")
+    print("  Accelerated Selective LKH & Crystal Glassmorphism UI")
     print("=" * 65)
     print(f"[*] Workspace Root : {ROOT}")
-    print(f"[*] App Directory  : {APP_DIR}")
     print(f"[*] Python Exec    : {py_exec}")
     print(f"[*] Server URL     : http://127.0.0.1:8000")
     print("=" * 65)
     print("[*] Launching server... (Press Ctrl+C to stop)")
     print()
 
-    # Automatically open browser after a brief delay in a background thread
     def open_browser():
         time.sleep(1.2)
         try:
@@ -67,10 +60,8 @@ def main():
         except Exception:
             pass
 
-    import threading
     threading.Thread(target=open_browser, daemon=True).start()
 
-    # Run uvicorn server in APP_DIR
     cmd = [
         py_exec,
         "-m", "uvicorn",
@@ -80,7 +71,7 @@ def main():
     ]
 
     try:
-        subprocess.run(cmd, cwd=str(APP_DIR))
+        subprocess.run(cmd, cwd=str(ROOT))
     except KeyboardInterrupt:
         print("\n[*] Server stopped.")
 

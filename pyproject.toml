@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adaptive-evolution-research-editor"
+version = "4.2.0"
+description = "Adaptive Evolution Research Console with Accelerated Selective LKH and Crystal Glassmorphism UI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "MD Sahil", email = "mondalsahil302@gmail.com"}
+]
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "python-multipart>=0.0.6",
+    "numpy>=1.23.0",
+    "pandas>=2.0.0",
+    "tsplib95>=0.7.1",
+    "elkai>=0.1.2",
+    "reportlab>=3.6.0",
+    "matplotlib>=3.7.0",
+    "httpx>=0.24.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "flake8>=6.0.0",
+    "ruff>=0.1.0"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = [".venv", "venv", "__pycache__", "runs", "data"]
