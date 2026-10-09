@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adaptive Evolution Research Console v4.2 — APGGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css?v=crystal_v6">
+<link rel="stylesheet" href="/frontend/style.css?v=crystal_v6">
+<link rel="stylesheet" href="/style.css?v=crystal_v6">
+</head>
+<body class="dark">
+<!-- Ambient crystal environment: soft blurred light sources behind the glass panels -->
+<div class="ambient" aria-hidden="true">
+  <span class="orb orb-cyan"></span>
+  <span class="orb orb-violet"></span>
+  <span class="orb orb-rose"></span>
+  <span class="orb orb-blue"></span>
+  <span class="sheen"></span>
+</div>
+
+<div class="shell">
+  <!-- Floating Crystal Header Bar -->
+  <header class="header">
+    <div class="header-glow" aria-hidden="true"></div>
+    <div class="brand">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        <span>APGGS AI RESEARCH ENGINE · v4.2</span>
+      </div>
+      <h1>Adaptive Evolution Research Console</h1>
+      <p class="sub">Adaptive Probe-Guided Genetic Algorithm for TSP · Live Telemetry &amp; Publication Reporting</p>
+    </div>
+
+    <div class="hd-status">
+      <div class="hd-status-chip is-idle" id="hdStatus">
+        <span class="hd-dot" id="hdStatusDot"></span>
+        <span>Idle</span>
+      </div>
+      <div class="hd-readout">
+        <div class="hd-readout-row"><span>Dataset</span><b id="hdDataset">No dataset</b></div>
+        <div class="hd-readout-row"><span>Experiment</span><b id="hdRunid">Run —</b></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-ghost" id="themeBtn" title="Toggle light / dark crystal theme">
+        <span id="themeIcon">☀️</span> <span id="themeText">Light mode</span>
+      </button>
+      <button class="btn btn-ghost" id="togglePdfBtn" title="Toggle PDF report panel">
+        <span>📄</span> <span>PDF Report</span>
+      </button>
+      <button class="btn btn-secondary" id="resetBtn" title="Reset state to initial seed">
+        <span>↺</span> <span>Reset</span>
+      </button>
+      <button class="btn btn-danger" id="stopBtn" disabled title="Gracefully halt after current generation">
+        <span>⏹</span> <span>Stop Run</span>
+      </button>
+      <button class="btn btn-primary btn-run" id="runBtn" title="Execute adaptive GA until optimum or stagnation">
+        <span>▶</span> <span>Run Full Experiment</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Glassmorphism Layout -->
+  <div class="layout" id="mainLayout">
+
+    <!-- LEFT COLUMN: Setup, Pipeline & Configuration -->
+    <aside class="col-left">
+      <!-- Dataset Card -->
+      <section class="glass-card">
+        <div class="card-title">
+          <span>TSPLIB Dataset</span>
+          <span class="badge" id="dsBadge">Ready</span>
+        </div>
+        <div id="dropZone" class="dropzone">
+          <div class="upload-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div class="drop-text"><b>Drop .tsp or .csv file</b></div>
+          <div class="drop-sub">or click to browse local files</div>
+          <input id="fileInput" type="file" accept=".tsp,.csv" hidden>
+        </div>
+        <div id="meta" class="meta-box">
+          <div class="meta-row"><span>Instance:</span><b id="dsName">—</b></div>
+          <div class="meta-row"><span>Dimension:</span><b id="dsCities">—</b></div>
+          <div class="meta-row"><span>Weight Type:</span><b id="dsWeight">—</b></div>
+          <div class="meta-row"><span>Known Optimum:</span><b id="dsOpt" class="highlight-opt">—</b></div>
+        </div>
+      </section>
+
+      <!-- Algorithm Pipeline Card -->
+      <section class="glass-card">
+        <div class="card-title">
+          <span>APGGS Pipeline Stages</span>
+          <span class="badge badge-accent">15 Stages</span>
+        </div>
+        <div class="pipeline-list">
+          <div class="p-step active"><strong>01</strong><div><span>KNN Graph</span><small>k=15 candidate edge graph</small></div></div>
+          <div class="p-step active"><strong>02</strong><div><span>Greedy Seed</span><small>Heuristic nearest-neighbor tour</small></div></div>
+          <div class="p-step active"><strong>03</strong><div><span>2-Opt Local Search</span><small>Initial edge disentanglement</small></div></div>
+          <div class="p-step active"><strong>04</strong><div><span>2-Opt Refinement</span><small>Deep iterative local search</small></div></div>
+          <div class="p-step active"><strong>05</strong><div><span>Initial Population</span><small>N=50 diverse randomized tours</small></div></div>
+          <div class="p-step active"><strong>06</strong><div><span>Predictive Memory (PMG)</span><small>Frequency edge transition memory</small></div></div>
+          <div class="p-step active"><strong>07</strong><div><span>Tournament Selection</span><small>Size=3 fitness-proportionate selection</small></div></div>
+          <div class="p-step active"><strong>08</strong><div><span>Segment Crossover</span><small>Order Crossover (OX) with memory bias</small></div></div>
+          <div class="p-step active"><strong>09</strong><div><span>Swap Mutation</span><small>Adaptive mutation (pm=0.12)</small></div></div>
+          <div class="p-step active"><strong>10</strong><div><span>Fast 2-Opt</span><small>Sub-tour reversal polish</small></div></div>
+          <div class="p-step active"><strong>11</strong><div><span>Adaptive Operator</span><small>Weak-edge / Or-Opt / 2-Opt roulette</small></div></div>
+          <div class="p-step active"><strong>12</strong><div><span>Diversity Control</span><small>Edge entropy & stagnation detector</small></div></div>
+          <div class="p-step active"><strong>13</strong><div><span>Double-Bridge 4-Opt</span><small>Non-sequential perturbation escape</small></div></div>
+          <div class="p-step active"><strong>14</strong><div><span>Selective LKH-3</span><small>Periodic elite polish (cadence=15)</small></div></div>
+          <div class="p-step active"><strong>15</strong><div><span>Fitness & Gap Tracking</span><small>Research-grade telemetry logging</small></div></div>
+        </div>
+      </section>
+
+      <!-- Configuration Card -->
+      <section class="glass-card">
+        <div class="card-title"><span>Research Configuration</span></div>
+        <div class="param-grid">
+          <div class="param-row"><span>Population size</span><b id="popInfo">50</b></div>
+          <div class="param-row"><span>Max generations</span><b id="maxInfo">300</b></div>
+          <div class="param-row"><span>Stagnation limit</span><b id="stagLimitInfo" class="highlight-warning">30 gens</b></div>
+          <div class="param-row"><span>K neighbors</span><b id="kInfo">15</b></div>
+          <div class="param-row"><span>Mutation rate</span><b id="mutInfo">0.12</b></div>
+          <div class="param-row"><span>LKH cadence</span><b id="lkhInfo">every 15</b></div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- CENTER COLUMN: Main Execution, Telemetry, Route Explorer, Charts -->
+    <main class="col-center">
+
+      <!-- Real-Time Metrics Ribbon -->
+      <section class="metrics-ribbon">
+        <div class="metric-card metric-priority" id="cardCost">
+          <span class="m-label">Global Best Cost</span>
+          <b class="m-val" id="mCost">—</b>
+          <span class="m-sub" id="mCostSub">Best tour found</span>
+        </div>
+        <div class="metric-card metric-priority metric-gap" id="cardGap">
+          <span class="m-label">Optimality Gap</span>
+          <b class="m-val" id="mGap">—</b>
+          <span class="m-sub" id="mGapSub">vs known optimum</span>
+        </div>
+        <div class="metric-card">
+          <span class="m-label">Completed Gen</span>
+          <b class="m-val" id="mGen">0</b>
+          <span class="m-sub" id="mGenSub">of 300 maximum</span>
+        </div>
+        <div class="metric-card">
+          <span class="m-label">Best Generation</span>
+          <b class="m-val" id="mBest">0</b>
+          <span class="m-sub">Generation of best tour</span>
+        </div>
+        <div class="metric-card">
+          <span class="m-label">Diversity Index</span>
+          <b class="m-val" id="mDiv">—</b>
+          <span class="m-sub">Population edge entropy</span>
+        </div>
+        <div class="metric-card">
+          <span class="m-label">Elapsed Time</span>
+          <b class="m-val" id="mElapsed">00:00</b>
+          <span class="m-sub" id="mEta">ETA: —</span>
+        </div>
+      </section>
+
+      <!-- Prominent Stagnation Patience Watchdog Meter -->
+      <section class="glass-card stagnation-card">
+        <div class="stagnation-head">
+          <div class="stagnation-title-box">
+            <span class="watchdog-pulse" id="watchdogDot"></span>
+            <div>
+              <div class="stagnation-title">STAGNATION PATIENCE WATCHDOG</div>
+              <div class="stagnation-sub">Consecutive generations without global-best cost improvement</div>
+            </div>
+          </div>
+          <div class="stagnation-badge-box">
+            <span class="stagnation-badge" id="stagBadge">0 / 30 GENS</span>
+          </div>
+        </div>
+        <div class="stagnation-bar-track">
+          <div class="stagnation-bar-fill" id="stagFill" style="width: 0%;"></div>
+          <div class="stagnation-limit-marker" style="left: 100%;" title="Termination threshold: 30 consecutive generations"></div>
+        </div>
+        <div class="stagnation-footer">
+          <span id="stagDesc">Algorithm is improving normally.</span>
+          <span class="limit-caption">Termination limit: <b>30 consecutive non-improving generations</b></span>
+        </div>
+      </section>
+
+      <!-- Terminal / Status Stop Banner (Appears when run completes or halts) -->
+      <section class="terminal-banner" id="terminalBanner" style="display: none;">
+        <div class="banner-icon" id="bannerIcon">✓</div>
+        <div class="banner-body">
+          <div class="banner-title" id="bannerTitle">EXPERIMENT COMPLETED</div>
+          <div class="banner-text" id="bannerText">The algorithm terminated according to research stopping criteria.</div>
+          <div class="banner-stats" id="bannerStats"></div>
+        </div>
+        <div class="banner-actions">
+          <button class="btn btn-secondary btn-sm" id="bannerPdfBtn">View PDF Report</button>
+          <button class="btn btn-primary btn-sm" id="bannerZipBtn">Download Artifacts (ZIP)</button>
+        </div>
+      </section>
+
+      <!-- Live Execution Progress Card -->
+      <section class="glass-card live-status-card">
+        <div class="live-status-row">
+          <div>
+            <div class="status-indicator">
+              <span class="status-dot" id="liveDot"></span>
+              <span class="status-title" id="liveTitle">Ready to start</span>
+            </div>
+            <div class="meta-sub" id="liveMeta">Upload a dataset or click Run to begin adaptive evolution.</div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-label" id="progressText">0 / 300 generations</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Generation Feed Carousel -->
+      <section class="glass-card feed-card">
+        <div class="feed-header">
+          <div>
+            <span class="card-title-inline">Live Generation Feed</span>
+            <span class="caption">Click any generation to inspect its route & population state</span>
+          </div>
+          <button class="btn btn-ghost btn-xs" id="jumpLatest">Jump to Latest</button>
+        </div>
+        <div id="generationFeed" class="generation-carousel"></div>
+      </section>
+
+      <!-- Route Visualizer & Selected Generation Explorer -->
+      <div class="grid-2col">
+        <section class="glass-card">
+          <div class="head-between">
+            <div>
+              <div class="card-title-inline">Generation Route Explorer</div>
+              <div class="caption" id="routeCaption">Best route visualization</div>
+            </div>
+            <div class="gen-picker">
+              <button class="picker-btn" id="prevGen" title="Previous generation">‹</button>
+              <select id="genSelect" class="picker-select"></select>
+              <button class="picker-btn" id="nextGen" title="Next generation">›</button>
+            </div>
+          </div>
+          <div id="routeInfo" class="route-metrics-bar"></div>
+          <div id="routeViz" class="route-canvas-box"></div>
+        </section>
+
+        <section class="glass-card">
+          <div class="card-title-inline">Selected Generation Diagnostics</div>
+          <div id="genSummary" class="diagnostic-grid"></div>
+          <div class="section-label">Best Tour Sequence</div>
+          <pre id="selectedRoute" class="route-text-box">—</pre>
+        </section>
+      </div>
+
+      <!-- Research Charts Grid -->
+      <div class="grid-2col">
+        <section class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="card-title-inline">Convergence Trajectory</div>
+              <div class="caption">X: Generation · Y: Global Best Tour Cost (Red line: Known Optimum)</div>
+            </div>
+          </div>
+          <div id="convergence" class="chart-container"></div>
+        </section>
+
+        <section class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="card-title-inline">Stagnation Watchdog Progress</div>
+              <div class="caption">X: Generation · Y: Consecutive Generations Without Improvement (Limit: 30)</div>
+            </div>
+          </div>
+          <div id="stagnationChart" class="chart-container"></div>
+        </section>
+      </div>
+
+      <div class="grid-2col">
+        <section class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="card-title-inline">Cost Improvement Delta</div>
+              <div class="caption">X: Generation · Y: Cost reduction achieved in generation</div>
+            </div>
+          </div>
+          <div id="improvement" class="chart-container"></div>
+        </section>
+
+        <section class="glass-card chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="card-title-inline">Execution Runtime per Generation</div>
+              <div class="caption">X: Generation · Y: Duration (seconds)</div>
+            </div>
+          </div>
+          <div id="timeChart" class="chart-container"></div>
+        </section>
+      </div>
+
+      <section class="glass-card chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="card-title-inline">Population Diversity & Predictive Memory Trust</div>
+            <div class="caption">X: Generation · Y: Edge Diversity Entropy vs PMG Memory Trust Factor</div>
+          </div>
+        </div>
+        <div id="diversityChart" class="chart-container"></div>
+      </section>
+
+      <!-- Tables: Completed Generations & Population Inspection -->
+      <div class="grid-2col">
+        <section class="glass-card">
+          <div class="card-title-inline">Completed Generations Log</div>
+          <div class="caption">Click any row to display the route in the explorer.</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Gen</th>
+                  <th>Pop</th>
+                  <th>Best Cost</th>
+                  <th>Gap</th>
+                  <th>Improvement</th>
+                  <th>Operator</th>
+                  <th>Time (s)</th>
+                </tr>
+              </thead>
+              <tbody id="generationTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="glass-card">
+          <div class="card-title-inline">Population Members (Selected Gen)</div>
+          <div class="caption" id="popCaption">Ranked individuals in generation</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>ID</th>
+                  <th>Cost</th>
+                  <th>Fitness</th>
+                  <th>Construction</th>
+                  <th>Tour Sequence</th>
+                </tr>
+              </thead>
+              <tbody id="populationTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Pipeline Benchmarks & Operator Credit Breakdown -->
+      <div class="grid-2col">
+        <section class="glass-card">
+          <div class="card-title-inline">Initial Construction Benchmarks</div>
+          <div id="initialOutputs" class="initial-grid"></div>
+        </section>
+
+        <section class="glass-card">
+          <div class="card-title-inline">Adaptive Operator Performance</div>
+          <div id="operatorActivity" class="operator-grid"></div>
+        </section>
+      </div>
+
+      <!-- Real-Time Diagnostic Terminal / Console -->
+      <section class="glass-card">
+        <div class="head-between">
+          <div class="card-title-inline">Execution Diagnostic Console</div>
+          <button class="btn btn-ghost btn-xs" id="clearConsoleBtn">Clear</button>
+        </div>
+        <pre id="console" class="terminal-box">Adaptive Evolution Research Console v4.2 initialized. Ready for dataset.</pre>
+      </section>
+    </main>
+
+    <!-- RIGHT COLUMN: Side-by-Side PDF Research Report Viewer -->
+    <aside class="col-right" id="pdfPanel">
+      <section class="glass-card pdf-card">
+        <div class="pdf-panel-header">
+          <div class="pdf-title-box">
+            <span class="pdf-icon">📑</span>
+            <div>
+              <div class="pdf-header-title">Research Report</div>
+              <div class="pdf-header-sub" id="pdfRunLabel">ReportLab Publication PDF</div>
+            </div>
+          </div>
+          <div class="pdf-actions">
+            <button class="btn btn-ghost btn-xs" id="refreshPdfBtn" title="Regenerate / reload PDF">🔄</button>
+            <a class="btn btn-ghost btn-xs" id="downloadPdfBtn" title="Download PDF document" download="APGGS_Report.pdf" href="#">⬇ PDF</a>
+            <a class="btn btn-secondary btn-xs" id="downloadZipBtn" title="Download all artifacts as ZIP" download="APGGS_Artifacts.zip" href="#">📦 ZIP</a>
+            <button class="btn btn-ghost btn-xs" id="collapsePdfBtn" title="Collapse panel">✕</button>
+          </div>
+        </div>
+
+        <!-- Crystal PDF toolbar: page navigation & zoom -->
+        <div class="pdf-toolbar">
+          <div class="pdf-tool-group">
+            <button class="ptool" id="pdfPrevPage" title="Previous page">‹</button>
+            <span class="pdf-tool-label" id="pdfPageLabel">Page 1</span>
+            <button class="ptool" id="pdfNextPage" title="Next page">›</button>
+          </div>
+          <div class="pdf-tool-group">
+            <button class="ptool" id="pdfZoomOut" title="Zoom out">−</button>
+            <span class="pdf-tool-label" id="pdfZoomLabel">100%</span>
+            <button class="ptool" id="pdfZoomIn" title="Zoom in">+</button>
+            <button class="ptool ptool-wide" id="pdfZoomReset" title="Reset zoom & page">Reset</button>
+          </div>
+          <div class="pdf-tool-group">
+            <a class="ptool ptool-wide" id="downloadPdfBtn2" title="Download PDF" href="#" download="APGGS_Report.pdf">Download</a>
+          </div>
+        </div>
+
+        <!-- PDF Frame / Preview Area -->
+        <div class="pdf-viewport-container">
+          <div id="pdfEmptyState" class="pdf-empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>No Report Generated Yet</h3>
+            <p>Run the full experiment or generate a report for the current dataset state.</p>
+            <button class="btn btn-primary btn-sm" id="generatePdfBtn">Generate PDF Report</button>
+          </div>
+          <div id="pdfLoadingState" class="pdf-loading-state" style="display:none;">
+            <span class="pdf-spinner"></span>
+            <span>Rendering report document…</span>
+          </div>
+          <iframe id="pdfFrame" class="pdf-frame" src="about:blank" style="display:none;" title="Research report PDF viewer"></iframe>
+        </div>
+
+        <div class="pdf-section-nav">
+          <div class="artifact-title">Report Sections</div>
+          <div class="pdf-section-chips">
+            <a class="s-chip" href="#" data-page="1">Summary</a>
+            <a class="s-chip" href="#" data-page="2">Convergence</a>
+            <a class="s-chip" href="#" data-page="3">Stagnation</a>
+            <a class="s-chip" href="#" data-page="4">Runtime</a>
+            <a class="s-chip" href="#" data-page="5">Diversity</a>
+          </div>
+        </div>
+
+        <div class="pdf-artifact-footer">
+          <div class="artifact-title">Artifact Directory:</div>
+          <div class="artifact-tags">
+            <span class="tag">report.pdf</span>
+            <span class="tag">summary.json</span>
+            <span class="tag">generation_history.jsonl</span>
+            <span class="tag">best_route.csv</span>
+            <span class="tag">manifest.json</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+  </div>
+
+  <!-- Floating edge tab: reopens the collapsed PDF panel -->
+  <button class="show-pdf-tab" id="showPdfTab" title="Open research report panel">
+    <span>📑</span><span class="spt-label">Report</span>
+  </button>
+</div>
+
+<script src="./app.js?v=crystal_v6"></script>
+<script>
+if (typeof init !== 'function') {
+  const s = document.createElement('script');
+  s.src = '/frontend/app.js?v=crystal_v6';
+  document.body.appendChild(s);
+}
+</script>
+</body>
+</html>

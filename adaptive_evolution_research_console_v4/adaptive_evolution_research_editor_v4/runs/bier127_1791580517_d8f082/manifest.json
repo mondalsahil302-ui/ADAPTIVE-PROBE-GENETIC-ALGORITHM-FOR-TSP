@@ -1,0 +1,10 @@
+{
+  "run_id": "bier127_1791580517_d8f082",
+  "created_at": 1791580535.615243,
+  "files": {
+    "summary": "summary.json",
+    "history": "generation_history.jsonl",
+    "route": "best_route.csv",
+    "report": "report.pdf"
+  }
+}

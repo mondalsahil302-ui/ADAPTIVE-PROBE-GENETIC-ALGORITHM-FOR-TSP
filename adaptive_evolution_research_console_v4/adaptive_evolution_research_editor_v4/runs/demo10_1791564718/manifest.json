@@ -1,0 +1,10 @@
+{
+  "run_id": "demo10_1791564718",
+  "created_at": 1791564721.586767,
+  "files": {
+    "summary": "summary.json",
+    "history": "generation_history.jsonl",
+    "route": "best_route.csv",
+    "report": "report.pdf"
+  }
+}

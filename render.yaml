@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: adaptive-evolution-research-editor
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.11
+      - key: PYTHONPATH
+        value: ./adaptive_evolution_research_console_v4/adaptive_evolution_research_editor_v4
+      - key: LKH_ENABLED
+        value: "true"
+      - key: LKH_MAX_SECONDS_PER_CALL
+        value: "5.0"
+      - key: LKH_MIN_GENERATION_GAP
+        value: "10"
+      - key: LKH_TRIGGER_STAGNATION
+        value: "10"
+      - key: LKH_MAX_CALLS_PER_RUN
+        value: "8"
+      - key: LKH_MAX_TRIALS
+        value: "50"
+      - key: LKH_RUNS
+        value: "1"
+

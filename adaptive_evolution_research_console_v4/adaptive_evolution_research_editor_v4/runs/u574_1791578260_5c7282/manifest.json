@@ -1,0 +1,10 @@
+{
+  "run_id": "u574_1791578260_5c7282",
+  "created_at": 1791579289.824534,
+  "files": {
+    "summary": "summary.json",
+    "history": "generation_history.jsonl",
+    "route": "best_route.csv",
+    "report": "report.pdf"
+  }
+}

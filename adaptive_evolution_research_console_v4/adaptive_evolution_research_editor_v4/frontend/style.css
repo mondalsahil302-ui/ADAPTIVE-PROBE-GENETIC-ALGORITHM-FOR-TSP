@@ -1,0 +1,1708 @@
+/* ==========================================================================
+   Adaptive Evolution Research Console v4.2
+   Theme: Premium Crystal Glassmorphism & Prismatic Ambient Environment
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. Crystal Glass Foundation & Prismatic Palette
+     ------------------------------------------------------------------------ */
+  /* Elegant Grey Foundation */
+  --pearl-grey: #e5e7eb;
+  --titanium-grey: #aeb6c4;
+  --smoky-charcoal: #1c222c;
+  --smoky-dark: #121722;
+  --obsidian-base: #0a0d14;
+  --silver-white: #f8fafc;
+
+  /* Prismatic Crystal Accent Colors */
+  --crystal-cyan: #58e6f5;
+  --frosted-blue: #a8d8ff;
+  --soft-violet: #b9a5ff;
+  --lavender: #d8c9ff;
+  --rose-pink: #f3b8de;
+  --emerald-mint: #6ee7b7;
+  --ruby-coral: #fb7185;
+
+  /* Ambient Glassmorphic Background */
+  --bg-crystal: radial-gradient(ellipse at 50% 0%, #1e2738 0%, #121824 45%, #0a0d14 100%);
+
+  /* Translucent Glass Layers */
+  --glass-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(22, 29, 43, 0.72);
+  --glass-surface-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%), rgba(28, 38, 56, 0.82);
+  --glass-sub: rgba(14, 19, 29, 0.65);
+  --glass-well: rgba(9, 13, 20, 0.85);
+
+  /* Specular Reflections & Crystal Bevels */
+  --border-crystal: rgba(255, 255, 255, 0.18);
+  --border-crystal-strong: rgba(255, 255, 255, 0.32);
+  --border-crystal-focus: rgba(88, 230, 245, 0.55);
+
+  --specular-top: inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.38);
+  --specular-bottom: inset 0 -1px 1px 0 rgba(0, 0, 0, 0.45);
+  --crystal-shadow: 0 16px 42px -10px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+
+  /* Prismatic Gradients */
+  --grad-crystal-text: linear-gradient(135deg, #ffffff 0%, #d8c9ff 35%, #58e6f5 75%, #ffffff 100%);
+  --grad-cyan-violet: linear-gradient(135deg, #58e6f5 0%, #818cf8 50%, #b9a5ff 100%);
+  --grad-rose-gold: linear-gradient(135deg, #f3b8de 0%, #f472b6 50%, #fb7185 100%);
+  --grad-prismatic-bar: linear-gradient(90deg, #58e6f5 0%, #a8d8ff 30%, #b9a5ff 65%, #f3b8de 100%);
+  --grad-shimmer-edge: linear-gradient(90deg, transparent 0%, rgba(88, 230, 245, 0.5) 25%, rgba(185, 165, 255, 0.6) 50%, rgba(243, 184, 222, 0.5) 75%, transparent 100%);
+
+  /* Text & Glows */
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+  --cyan-glow: rgba(88, 230, 245, 0.35);
+  --violet-glow: rgba(185, 165, 255, 0.35);
+  --rose-glow: rgba(243, 184, 222, 0.3);
+
+  --radius-sm: 9px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   Light Theme: Liquid Silver, Frosted Crystal & Pearl Grey
+   -------------------------------------------------------------------------- */
+body.light {
+  --bg-crystal: radial-gradient(ellipse at 50% 0%, #f1f5f9 0%, #e2e8f0 55%, #cbd5e1 100%);
+  --glass-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.72) 100%);
+  --glass-surface-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.84) 100%);
+  --glass-sub: rgba(241, 245, 249, 0.85);
+  --glass-well: rgba(226, 232, 240, 0.85);
+
+  --border-crystal: rgba(255, 255, 255, 0.65);
+  --border-crystal-strong: rgba(148, 163, 184, 0.45);
+  --border-crystal-focus: rgba(14, 165, 233, 0.6);
+
+  --specular-top: inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.98);
+  --specular-bottom: inset 0 -1px 1px 0 rgba(148, 163, 184, 0.25);
+  --crystal-shadow: 0 12px 32px -6px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8);
+
+  --grad-crystal-text: linear-gradient(135deg, #0f172a 0%, #334155 40%, #1e293b 80%, #0f172a 100%);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+  --cyan-glow: rgba(14, 165, 233, 0.25);
+}
+
+/* ==========================================================================
+   2. Background & Ambient Lighting Environment
+   ========================================================================== */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg-crystal);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Soft Blurred Ambient Light Orbs Behind Interface */
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(85px);
+  opacity: 0.65;
+  animation: float-ambient 18s ease-in-out infinite alternate;
+}
+
+.orb-cyan {
+  width: 580px;
+  height: 580px;
+  top: -8%;
+  left: 6%;
+  background: radial-gradient(circle, rgba(88, 230, 245, 0.22) 0%, transparent 70%);
+}
+
+.orb-violet {
+  width: 640px;
+  height: 640px;
+  top: 10%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(185, 165, 255, 0.24) 0%, transparent 70%);
+  animation-duration: 22s;
+}
+
+.orb-rose {
+  width: 520px;
+  height: 520px;
+  bottom: 8%;
+  left: 32%;
+  background: radial-gradient(circle, rgba(243, 184, 222, 0.18) 0%, transparent 70%);
+  animation-duration: 26s;
+}
+
+.orb-blue {
+  width: 460px;
+  height: 460px;
+  top: 48%;
+  left: -6%;
+  background: radial-gradient(circle, rgba(168, 216, 255, 0.18) 0%, transparent 70%);
+  animation-duration: 20s;
+}
+
+@keyframes float-ambient {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(25px, -35px) scale(1.06); }
+  100% { transform: translate(-20px, 20px) scale(0.96); }
+}
+
+/* Crystalline Specular Grid Overlay */
+.ambient .sheen {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 52px 52px;
+}
+
+body.light .ambient .sheen {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+}
+
+.shell {
+  max-width: 1980px;
+  margin: 0 auto;
+  padding: 0 18px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   3. Floating Crystal Glass Panels
+   ========================================================================== */
+
+.glass-card {
+  background: var(--glass-surface);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid var(--border-crystal);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--specular-top), var(--specular-bottom), var(--crystal-shadow);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: var(--grad-shimmer-edge);
+  opacity: 0.6;
+}
+
+.glass-card:hover {
+  border-color: var(--border-crystal-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--specular-top), var(--specular-bottom), 0 20px 48px -10px rgba(0, 0, 0, 0.65), 0 0 24px -4px var(--cyan-glow);
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--titanium-grey);
+  margin-bottom: 13px;
+}
+
+.card-title-inline {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.caption {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.head-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   4. Premium Floating Crystal Header
+   ========================================================================== */
+
+.header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--glass-surface);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid var(--border-crystal);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--specular-top), var(--specular-bottom), var(--crystal-shadow);
+  margin: 16px 0 20px;
+  position: sticky;
+  top: 12px;
+  z-index: 50;
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 30px;
+  right: 30px;
+  height: 1.5px;
+  background: var(--grad-shimmer-edge);
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, rgba(88, 230, 245, 0.18) 0%, rgba(185, 165, 255, 0.15) 100%);
+  border: 1px solid rgba(88, 230, 245, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 16px rgba(88, 230, 245, 0.25);
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: #7dd3fc;
+  margin-bottom: 4px;
+}
+
+body.light .brand-badge {
+  color: #0369a1;
+  border-color: rgba(14, 165, 233, 0.45);
+}
+
+.pulse-dot {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  background: var(--crystal-cyan);
+  box-shadow: 0 0 10px var(--crystal-cyan);
+  animation: crystal-glow 2s infinite ease-in-out;
+}
+
+@keyframes crystal-glow {
+  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 6px var(--crystal-cyan); }
+  50% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 16px var(--crystal-cyan), 0 0 24px var(--soft-violet); }
+  100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 6px var(--crystal-cyan); }
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 900;
+  margin: 3px 0 0;
+  letter-spacing: -0.025em;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+}
+
+.header .sub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--titanium-grey);
+}
+
+.hd-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  padding: 6px 12px;
+  border-radius: 10px;
+  box-shadow: var(--specular-top);
+}
+
+.hd-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hd-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.is-running .hd-dot {
+  background: var(--crystal-cyan);
+  box-shadow: 0 0 12px var(--crystal-cyan);
+  animation: crystal-glow 1.5s infinite;
+}
+
+.is-running span:last-child {
+  color: var(--crystal-cyan);
+}
+
+.hd-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+}
+
+.hd-readout-row {
+  display: flex;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.hd-readout-row b {
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.toolbar {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   5. Glossy Crystal Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border-crystal);
+  border-radius: var(--radius-sm);
+  padding: 8px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(25, 33, 46, 0.6);
+  color: var(--text);
+  box-shadow: var(--specular-top), 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--border-crystal-strong);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 100%), rgba(35, 47, 66, 0.7);
+  box-shadow: var(--specular-top), 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 16px var(--cyan-glow);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Crystal Cyan-to-Violet Primary Button */
+.btn-primary {
+  background: var(--grad-cyan-violet);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #0b111e;
+  font-weight: 800;
+  box-shadow: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.75), 0 6px 22px var(--cyan-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7ef0fc 0%, #99a2ff 50%, #cbbaff 100%);
+  color: #050a12;
+  box-shadow: inset 0 2px 1.5px 0 #ffffff, 0 8px 28px var(--cyan-glow);
+}
+
+/* Frosted Ruby Danger Button */
+.btn-danger {
+  background: linear-gradient(180deg, rgba(251, 113, 133, 0.25) 0%, rgba(225, 29, 72, 0.35) 100%);
+  border-color: rgba(251, 113, 133, 0.55);
+  color: #fecdd3;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 16px var(--rose-glow);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(251, 113, 133, 0.4) 0%, rgba(225, 29, 72, 0.55) 100%);
+  border-color: #fb7185;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 8px 24px var(--rose-glow);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-crystal);
+  box-shadow: var(--specular-top);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.btn-xs {
+  padding: 4px 10px;
+  font-size: 10px;
+  border-radius: 6px;
+}
+
+/* Crystal Badges */
+.badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--titanium-grey);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+}
+
+.badge-accent {
+  background: linear-gradient(135deg, rgba(88, 230, 245, 0.18) 0%, rgba(185, 165, 255, 0.16) 100%);
+  color: var(--crystal-cyan);
+  border-color: rgba(88, 230, 245, 0.45);
+  box-shadow: 0 0 12px rgba(88, 230, 245, 0.25);
+}
+
+/* ==========================================================================
+   6. 3-Column Glassmorphism Layout
+   ========================================================================== */
+
+.layout {
+  display: grid;
+  grid-template-columns: 295px minmax(0, 1fr) 460px;
+  gap: 18px;
+  align-items: start;
+}
+
+.layout.hide-pdf {
+  grid-template-columns: 295px minmax(0, 1fr);
+}
+
+.layout.hide-pdf .col-right {
+  display: none;
+}
+
+.col-left, .col-center, .col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   7. Left Column: Dataset & 15-Stage Pipeline
+   ========================================================================== */
+
+.dropzone {
+  height: 118px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-sm);
+  background: var(--glass-sub);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+body.light .dropzone {
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+.dropzone:hover {
+  border-color: var(--crystal-cyan);
+  background: rgba(88, 230, 245, 0.1);
+  box-shadow: 0 0 20px rgba(88, 230, 245, 0.3);
+}
+
+.upload-icon {
+  color: var(--crystal-cyan);
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 10px rgba(88, 230, 245, 0.5));
+}
+
+.drop-text b {
+  font-size: 11px;
+  color: var(--text);
+}
+
+.drop-sub {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.meta-box {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--glass-sub);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.meta-row span {
+  color: var(--titanium-grey);
+}
+
+.meta-row b {
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.highlight-opt {
+  color: var(--crystal-cyan) !important;
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(88, 230, 245, 0.5);
+}
+
+/* 15-Stage Pipeline List */
+.pipeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 385px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.p-step {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  font-size: 10.5px;
+  transition: all 0.16s ease;
+}
+
+.p-step strong {
+  color: var(--crystal-cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.p-step span {
+  font-weight: 700;
+  display: block;
+}
+
+.p-step small {
+  color: var(--text-dim);
+  font-size: 9px;
+  display: block;
+}
+
+.p-step:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(88, 230, 245, 0.45);
+}
+
+.param-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.param-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-crystal);
+  font-size: 11px;
+}
+
+.param-row:last-child {
+  border-bottom: none;
+}
+
+.param-row span {
+  color: var(--titanium-grey);
+}
+
+.param-row b {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.highlight-warning {
+  color: #fbbf24 !important;
+  font-weight: 800;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
+}
+
+/* ==========================================================================
+   8. Center Column: Crystal Metrics Ribbon
+   ========================================================================== */
+
+.metrics-ribbon {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 11px;
+}
+
+.metric-card {
+  background: var(--glass-surface);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid var(--border-crystal);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+  box-shadow: var(--specular-top), var(--specular-bottom), var(--crystal-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.22s ease;
+}
+
+.metric-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--grad-shimmer-edge);
+}
+
+.metric-card:hover {
+  border-color: var(--border-crystal-strong);
+  transform: translateY(-2.5px);
+  box-shadow: var(--specular-top), 0 20px 42px rgba(0, 0, 0, 0.55), 0 0 20px var(--cyan-glow);
+}
+
+.m-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--titanium-grey);
+}
+
+.m-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 5px 0 2px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Individual Metric Highlights */
+#mCost {
+  color: var(--crystal-cyan);
+  text-shadow: 0 0 14px var(--cyan-glow);
+}
+
+#mGap {
+  color: var(--lavender);
+}
+
+#mGen {
+  color: var(--frosted-blue);
+}
+
+#mBest {
+  color: var(--soft-violet);
+}
+
+#mDiv {
+  color: var(--rose-pink);
+}
+
+.m-sub {
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+/* ==========================================================================
+   9. Stagnation Watchdog (30 Gens) Crystal HUD
+   ========================================================================== */
+
+.stagnation-card {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.09) 0%, rgba(20, 27, 40, 0.85) 60%, rgba(13, 18, 27, 0.9) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  box-shadow: inset 0 1.5px 1px 0 rgba(253, 230, 138, 0.35), var(--crystal-shadow);
+}
+
+.stagnation-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stagnation-title-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.watchdog-pulse {
+  width: 9.5px;
+  height: 9.5px;
+  border-radius: 50%;
+  background: var(--emerald-mint);
+  box-shadow: 0 0 14px var(--emerald-mint);
+  transition: all 0.3s ease;
+}
+
+.watchdog-pulse.warning {
+  background: #fbbf24;
+  box-shadow: 0 0 16px #fbbf24;
+}
+
+.watchdog-pulse.critical {
+  background: #f43f5e;
+  box-shadow: 0 0 18px #f43f5e;
+  animation: crystal-glow 0.9s infinite;
+}
+
+.stagnation-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stagnation-sub {
+  font-size: 10px;
+  color: var(--titanium-grey);
+}
+
+.stagnation-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4.5px 13px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.16);
+  color: var(--emerald-mint);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 16px rgba(16, 185, 129, 0.25);
+  transition: all 0.3s ease;
+}
+
+.stagnation-badge.warning {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+.stagnation-badge.critical {
+  background: rgba(244, 63, 94, 0.25);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.65);
+  box-shadow: 0 0 18px rgba(244, 63, 94, 0.45);
+}
+
+.stagnation-bar-track {
+  height: 13px;
+  border-radius: 999px;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65);
+  position: relative;
+  overflow: visible;
+  margin-bottom: 10px;
+}
+
+.stagnation-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--grad-prismatic-bar);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 16px rgba(88, 230, 245, 0.45);
+  transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+}
+
+.stagnation-bar-fill.warning {
+  background: linear-gradient(90deg, #58e6f5 0%, #fbbf24 60%, #f59e0b 100%);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45);
+}
+
+.stagnation-bar-fill.critical {
+  background: linear-gradient(90deg, #fbbf24 0%, #fb7185 50%, #f43f5e 100%);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.55);
+}
+
+.stagnation-limit-marker {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 3px;
+  background: #f43f5e;
+  box-shadow: 0 0 12px #f43f5e;
+  border-radius: 2px;
+}
+
+.stagnation-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--titanium-grey);
+}
+
+.limit-caption b {
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   10. Terminal Stop Banner
+   ========================================================================== */
+
+.terminal-banner {
+  background: linear-gradient(135deg, rgba(88, 230, 245, 0.22) 0%, rgba(185, 165, 255, 0.22) 100%);
+  border: 1px solid rgba(88, 230, 245, 0.5);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: var(--specular-top), 0 16px 42px rgba(0, 0, 0, 0.55);
+  animation: banner-glow 0.35s ease;
+}
+
+@keyframes banner-glow {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.terminal-banner.stagnation-stopped {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(244, 63, 94, 0.22) 100%);
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+.banner-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(88, 230, 245, 0.28);
+  color: var(--crystal-cyan);
+  border: 1px solid rgba(88, 230, 245, 0.6);
+  box-shadow: 0 0 20px rgba(88, 230, 245, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.stagnation-stopped .banner-icon {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.banner-body {
+  flex: 1;
+}
+
+.banner-title {
+  font-size: 13.5px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.banner-text {
+  font-size: 11px;
+  color: var(--pearl-grey);
+  margin-bottom: 8px;
+}
+
+.banner-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.banner-stat-chip {
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  border-radius: 6px;
+  padding: 3.5px 10px;
+  font-size: 10.5px;
+  box-shadow: var(--specular-top);
+}
+
+.banner-stat-chip span {
+  color: var(--titanium-grey);
+}
+
+.banner-stat-chip b {
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  margin-left: 4px;
+}
+
+.banner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* ==========================================================================
+   11. Live Status & Progress Bar
+   ========================================================================== */
+
+.live-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 22px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 9.5px;
+  height: 9.5px;
+  border-radius: 50%;
+  background: var(--crystal-cyan);
+  box-shadow: 0 0 12px var(--crystal-cyan);
+}
+
+.status-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.meta-sub {
+  font-size: 11px;
+  color: var(--titanium-grey);
+  margin-top: 3px;
+}
+
+.progress-container {
+  min-width: 280px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #58e6f5, #b9a5ff);
+  box-shadow: 0 0 16px rgba(88, 230, 245, 0.55);
+  transition: width 0.25s ease;
+}
+
+.progress-label {
+  font-size: 10px;
+  color: var(--titanium-grey);
+  text-align: right;
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   12. Generation Feed Carousel
+   ========================================================================== */
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.generation-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.carousel-card {
+  min-width: 122px;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  cursor: pointer;
+  box-shadow: var(--specular-top);
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.carousel-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--border-crystal-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--specular-top), 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+.carousel-card.active {
+  border-color: var(--crystal-cyan);
+  background: linear-gradient(135deg, rgba(88, 230, 245, 0.22) 0%, rgba(185, 165, 255, 0.18) 100%);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.4), 0 0 18px rgba(88, 230, 245, 0.35);
+}
+
+.carousel-card.is-best {
+  border-color: var(--emerald-mint);
+}
+
+.card-gen-num {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--crystal-cyan);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.card-cost-num {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.card-delta-num {
+  font-size: 9px;
+  color: var(--titanium-grey);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   13. Route Explorer Canvas & Diagnostics
+   ========================================================================== */
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.gen-picker {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.picker-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.picker-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--border-crystal-strong);
+}
+
+.picker-select {
+  height: 28px;
+  border-radius: 6px;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  color: var(--text);
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+.route-metrics-bar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--titanium-grey);
+  margin: 11px 0 10px;
+  padding: 8px 12px;
+  background: var(--glass-sub);
+  border-radius: 6px;
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+}
+
+.route-metrics-bar b {
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.route-canvas-box {
+  height: 345px;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.65);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+body.light .route-canvas-box {
+  background: #f8fafc;
+}
+
+.route-canvas-box svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.diag-item {
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.diag-item span {
+  display: block;
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--titanium-grey);
+  letter-spacing: 0.08em;
+}
+
+.diag-item b {
+  display: block;
+  font-size: 12.5px;
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 2px;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--titanium-grey);
+  margin-top: 14px;
+  margin-bottom: 5px;
+}
+
+.route-text-box {
+  margin: 0;
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: #7dd3fc;
+}
+
+/* ==========================================================================
+   14. Publication Research Charts (Crystal Style)
+   ========================================================================== */
+
+.chart-card {
+  padding-bottom: 12px;
+}
+
+.chart-header {
+  margin-bottom: 11px;
+}
+
+.chart-container {
+  height: 245px;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-sm);
+  padding: 7px;
+}
+
+body.light .chart-container {
+  background: rgba(248, 250, 252, 0.85);
+}
+
+.chart-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+.gridline {
+  stroke: var(--border-crystal);
+  stroke-width: 1;
+}
+
+.axis-text {
+  fill: var(--titanium-grey);
+  font-size: 9.5px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.axis-title-svg {
+  fill: var(--titanium-grey);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chart-line-blue {
+  fill: none;
+  stroke: var(--crystal-cyan);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 8px var(--cyan-glow));
+}
+
+.chart-line-orange {
+  fill: none;
+  stroke: var(--soft-violet);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 8px var(--violet-glow));
+}
+
+.chart-line-purple {
+  fill: none;
+  stroke: var(--lavender);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 8px rgba(216, 201, 255, 0.45));
+}
+
+.chart-line-red {
+  fill: none;
+  stroke: #f43f5e;
+  stroke-width: 1.6;
+  stroke-dasharray: 4 3;
+}
+
+/* ==========================================================================
+   15. Data Tables (Completed Generations & Population)
+   ========================================================================== */
+
+.table-wrap {
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-sm);
+  overflow: auto;
+  max-height: 300px;
+  margin-top: 9px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+th, td {
+  padding: 7.5px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-crystal);
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: var(--glass-surface);
+  backdrop-filter: blur(24px);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--titanium-grey);
+  z-index: 2;
+}
+
+tr:hover td {
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+td {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Benchmark & Operator Grids */
+.initial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.init-cell {
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.init-cell span {
+  font-size: 10px;
+  color: var(--titanium-grey);
+  display: block;
+}
+
+.init-cell b {
+  font-size: 14.5px;
+  color: var(--crystal-cyan);
+  display: block;
+  margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.init-cell small {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.operator-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.op-badge {
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  border-radius: 8px;
+  padding: 9px 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.op-badge span {
+  font-size: 10px;
+  color: var(--titanium-grey);
+  text-transform: capitalize;
+}
+
+.op-badge b {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+}
+
+/* ==========================================================================
+   16. Diagnostic Terminal
+   ========================================================================== */
+
+.terminal-box {
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.75);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  max-height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #6ee7b7;
+  margin: 10px 0 0;
+}
+
+body.light .terminal-box {
+  background: #0f172a;
+  color: #38bdf8;
+}
+
+/* ==========================================================================
+   17. Side-by-Side Crystal PDF Research Viewer
+   ========================================================================== */
+
+.col-right {
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 32px);
+}
+
+.pdf-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.pdf-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-crystal);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.pdf-title-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.pdf-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 0 10px var(--cyan-glow));
+}
+
+.pdf-header-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pdf-header-sub {
+  font-size: 9.5px;
+  color: var(--titanium-grey);
+}
+
+.pdf-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pdf-viewport-container {
+  flex: 1;
+  background: var(--glass-well);
+  border: 1px solid var(--border-crystal);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.75);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+body.light .pdf-viewport-container {
+  background: #cbd5e1;
+}
+
+.pdf-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 16px var(--cyan-glow));
+}
+
+.pdf-empty-state h3 {
+  font-size: 14.5px;
+  margin: 0 0 6px;
+  background: var(--grad-crystal-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pdf-empty-state p {
+  font-size: 11px;
+  color: var(--titanium-grey);
+  max-width: 270px;
+  margin: 0 0 16px;
+}
+
+.pdf-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.pdf-artifact-footer {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-crystal);
+}
+
+.artifact-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--titanium-grey);
+  margin-bottom: 5px;
+}
+
+.artifact-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  font-size: 9.5px;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--glass-sub);
+  border: 1px solid var(--border-crystal);
+  box-shadow: var(--specular-top);
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: var(--titanium-grey);
+}
+
+/* ==========================================================================
+   18. Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1480px) {
+  .layout {
+    grid-template-columns: 285px 1fr;
+  }
+  .col-right {
+    display: none;
+  }
+  .layout.show-pdf-drawer .col-right {
+    display: flex;
+    position: fixed;
+    right: 18px;
+    top: 80px;
+    bottom: 20px;
+    width: 480px;
+    z-index: 100;
+  }
+}
+
+@media (max-width: 1100px) {
+  .metrics-ribbon {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .metrics-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

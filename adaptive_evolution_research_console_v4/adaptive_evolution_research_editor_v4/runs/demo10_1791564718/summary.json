@@ -1,0 +1,54 @@
+{
+  "run_id": "demo10_1791564718",
+  "timestamp": "2026-10-09 22:21:59",
+  "dataset": {
+    "name": "demo10",
+    "cities": 10,
+    "edge_weight_type": "EUC_2D",
+    "best_known": null
+  },
+  "config": {
+    "population_size": 70,
+    "nn_count": 17,
+    "greedy_count": 11,
+    "random_count": 42,
+    "max_generations": 300,
+    "no_improvement_limit": 30,
+    "stagnation_patience": 30,
+    "improvement_tolerance": 1e-09,
+    "k_neighbors": 15,
+    "tournament_size": 4,
+    "mutation_rate": 0.2,
+    "swap_fraction": 0.02,
+    "segment_crossover_probability": 0.4,
+    "offspring_local_search_probability": 0.35,
+    "fast_two_opt_passes": 1,
+    "elite_count": 2,
+    "memory_elite_fraction": 0.2,
+    "memory_decay": 0.92,
+    "adaptive_elite_count": 14,
+    "stagnation_window": 15,
+    "stagnation_epsilon": 0.0001,
+    "diversity_floor": 0.05,
+    "lkh_cadence": 15,
+    "lkh_runs": 3,
+    "lkh_individuals": 3,
+    "seed": 1
+  },
+  "results": {
+    "best_cost": 102.0,
+    "gap_percent": null,
+    "best_generation": 0,
+    "completed_generations": 1,
+    "no_improvement_streak": 1,
+    "stagnation_patience": 30,
+    "converged": false,
+    "is_stopped": false,
+    "state": "running",
+    "stop_reason": "Ready",
+    "total_execution_time": 0.009680299976025708
+  },
+  "diagnostics": [
+    "Initialized demo10 (10 cities). Initial best cost: 102.00"
+  ]
+}

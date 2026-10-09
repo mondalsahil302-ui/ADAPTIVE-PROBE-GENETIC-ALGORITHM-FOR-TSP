@@ -1,0 +1,59 @@
+{
+  "run_id": "berlin52_1791575927_76bfc3",
+  "timestamp": "2026-10-10 01:28:54",
+  "dataset": {
+    "name": "berlin52",
+    "cities": 52,
+    "edge_weight_type": "EUC_2D",
+    "best_known": 7542
+  },
+  "config": {
+    "population_size": 70,
+    "nn_count": 17,
+    "greedy_count": 11,
+    "random_count": 42,
+    "max_generations": 300,
+    "no_improvement_limit": 30,
+    "stagnation_patience": 30,
+    "improvement_tolerance": 1e-09,
+    "k_neighbors": 15,
+    "tournament_size": 4,
+    "mutation_rate": 0.2,
+    "swap_fraction": 0.02,
+    "segment_crossover_probability": 0.4,
+    "offspring_local_search_probability": 0.35,
+    "fast_two_opt_passes": 1,
+    "elite_count": 2,
+    "memory_elite_fraction": 0.2,
+    "memory_decay": 0.92,
+    "adaptive_elite_count": 14,
+    "stagnation_window": 15,
+    "stagnation_epsilon": 0.0001,
+    "diversity_floor": 0.05,
+    "lkh_cadence": 15,
+    "lkh_runs": 3,
+    "lkh_individuals": 3,
+    "seed": 1
+  },
+  "results": {
+    "best_cost": 7542.0,
+    "gap_percent": 0.0,
+    "best_generation": 15,
+    "completed_generations": 15,
+    "no_improvement_streak": 0,
+    "stagnation_patience": 30,
+    "converged": true,
+    "is_stopped": true,
+    "state": "completed",
+    "stop_reason": "0.0% gap achieved (Known optimum found)",
+    "total_execution_time": 1.9385841999901459
+  },
+  "diagnostics": [
+    "Initialized berlin52 (52 cities). Initial best cost: 8,181.00",
+    "Gen 1: Discovered new global-best 7,895.00 (-286.00)",
+    "Gen 2: Discovered new global-best 7,741.00 (-154.00)",
+    "Gen 5: Discovered new global-best 7,715.00 (-26.00)",
+    "Gen 15: Discovered new global-best 7,542.00 (-173.00)",
+    "Gen 15: 0.0% optimality gap achieved. Experiment completed."
+  ]
+}

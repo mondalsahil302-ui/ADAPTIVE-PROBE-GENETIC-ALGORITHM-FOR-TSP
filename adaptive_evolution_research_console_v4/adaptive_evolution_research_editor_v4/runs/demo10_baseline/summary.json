@@ -1,0 +1,55 @@
+{
+  "run_id": "demo10_baseline",
+  "timestamp": "2026-10-09 22:04:41",
+  "dataset": {
+    "name": "demo10",
+    "cities": 10,
+    "edge_weight_type": "EUC_2D",
+    "best_known": null
+  },
+  "config": {
+    "population_size": 30,
+    "nn_count": 17,
+    "greedy_count": 11,
+    "random_count": 2,
+    "max_generations": 100,
+    "no_improvement_limit": 30,
+    "stagnation_patience": 30,
+    "improvement_tolerance": 1e-09,
+    "k_neighbors": 15,
+    "tournament_size": 4,
+    "mutation_rate": 0.2,
+    "swap_fraction": 0.02,
+    "segment_crossover_probability": 0.4,
+    "offspring_local_search_probability": 0.35,
+    "fast_two_opt_passes": 1,
+    "elite_count": 2,
+    "memory_elite_fraction": 0.2,
+    "memory_decay": 0.92,
+    "adaptive_elite_count": 14,
+    "stagnation_window": 15,
+    "stagnation_epsilon": 0.0001,
+    "diversity_floor": 0.05,
+    "lkh_cadence": 15,
+    "lkh_runs": 3,
+    "lkh_individuals": 3,
+    "seed": 1
+  },
+  "results": {
+    "best_cost": 102.0,
+    "gap_percent": null,
+    "best_generation": 0,
+    "completed_generations": 30,
+    "no_improvement_streak": 30,
+    "stagnation_patience": 30,
+    "converged": false,
+    "is_stopped": true,
+    "state": "stopped_stagnation",
+    "stop_reason": "No improvement for 30 consecutive generations",
+    "total_execution_time": 0.12082860006194096
+  },
+  "diagnostics": [
+    "Initialized demo10 (10 cities). Initial best cost: 102.00",
+    "Gen 30: Stagnation limit reached (30 non-improving generations). Terminated."
+  ]
+}

@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Start UI: Adaptive Evolution Research Console (F5)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_console.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Run: APGGS Ablation Study (10 Datasets)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_ablation_study.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

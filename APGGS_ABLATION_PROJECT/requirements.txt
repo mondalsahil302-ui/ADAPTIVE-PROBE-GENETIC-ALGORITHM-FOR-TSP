@@ -1,0 +1,7 @@
+numpy>=1.22.0
+matplotlib>=3.5.0
+pandas>=1.4.0
+tsplib95>=0.7.1
+openpyxl>=3.0.0
+elkai>=0.1.2
+

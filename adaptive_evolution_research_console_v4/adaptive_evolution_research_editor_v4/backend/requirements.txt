@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-multipart
+numpy
+pandas
+tsplib95
+elkai
+reportlab
+matplotlib
+httpx

@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Research Console (PowerShell)",
+            "type": "shell",
+            "command": ".\\run_console.ps1",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Start Research Console (Batch)",
+            "type": "shell",
+            "command": ".\\run_windows.bat",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Run Ablation Study (10 Datasets)",
+            "type": "shell",
+            "command": "python run_ablation_study.py",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}
+
