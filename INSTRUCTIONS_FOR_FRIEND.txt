@@ -1,0 +1,45 @@
+================================================================================
+  ADAPTIVE EVOLUTION RESEARCH CONSOLE v4.2 - QUICK START GUIDE
+================================================================================
+
+Hi! Welcome to the Adaptive Evolution Research Console for the Traveling
+Salesperson Problem (TSP).
+
+Everything in this folder is self-contained and pre-configured.
+
+--------------------------------------------------------------------------------
+HOW TO RUN (WINDOWS)
+--------------------------------------------------------------------------------
+1. Double-click "Run_Config.bat" (or "run_windows.bat").
+2. The launcher will automatically:
+   - Detect if you have Python 3.10+ installed (or install it if needed).
+   - Set up an isolated project virtual environment (.venv).
+   - Install required packages (FastAPI, Uvicorn, NumPy, ReportLab, etc.).
+   - Start the local research server.
+   - Automatically open your web browser to: http://127.0.0.1:8000
+
+--------------------------------------------------------------------------------
+HOW TO RUN (MAC / LINUX)
+--------------------------------------------------------------------------------
+1. Open your terminal in this folder.
+2. Run:
+   chmod +x Run_Config.sh run_mac_linux.sh
+   ./Run_Config.sh
+3. The server will start and open http://127.0.0.1:8000 in your browser.
+
+--------------------------------------------------------------------------------
+WHAT YOU CAN DO IN THE CONSOLE
+--------------------------------------------------------------------------------
+- Select from built-in standard TSPLIB benchmark instances (Berlin52, eil51, etc.)
+  or upload your own .tsp / .txt benchmark files.
+- Run the Adaptive Probe Genetic Algorithm with real-time visual convergence.
+- Toggle and benchmark Accelerated Selective LKH local search.
+- Step through generation-by-generation evolution with interactive route replay.
+- Generate and download executive PDF research reports and CSV exports.
+
+--------------------------------------------------------------------------------
+HOW TO STOP THE SERVER
+--------------------------------------------------------------------------------
+- Press Ctrl+C in the console launcher window to cleanly stop the server.
+================================================================================
+
