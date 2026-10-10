@@ -345,15 +345,41 @@ async function loadGeneration(g) {
     renderGenerationDetail();
   } catch (e) {
     if (token !== genLoadToken) return;
-    $("console").textContent += `\n[Error loading generation ${g}]: ${e.message}`;
   }
+}
+
+let popFilterLimit = "10";
+let popCardMinimized = false;
+let selectedPopMemberId = null;
+
+function formatTourSummary(tour) {
+  if (!Array.isArray(tour) || tour.length === 0) {
+    return { summary: "—", full: "—", count: 0 };
+  }
+  const n = tour.length;
+  const full = tour.join(" → ");
+  if (n <= 6) {
+    return { summary: full, full, count: n };
+  }
+  const head = tour.slice(0, 3).join(" → ");
+  const tail = tour.slice(-2).join(" → ");
+  const summary = `${head} … ${tail}`;
+  return { summary, full, count: n };
+}
+
+function compactMethod(m) {
+  if (!m) return "—";
+  return String(m)
+    .replace(/Nearest Neighbor/i, "NN")
+    .replace(/Greedy Heuristic/i, "Greedy")
+    .replace(/Christofides/i, "Christof.")
+    .replace(/Randomized/i, "Rand.");
 }
 
 function renderGenerationDetail() {
   if (!selectedDetail) return;
   const d = selectedDetail;
   const r = d.record || {};
-  const pop = d.population || [];
 
   $("routeCaption").textContent = `Visualizing best route of Generation ${d.generation}`;
   $("routeInfo").innerHTML = `
@@ -388,17 +414,80 @@ function renderGenerationDetail() {
   $("selectedRoute").textContent = (d.route || []).join(" → ");
   renderRouteCanvas(d.route || [], d.route_coords);
 
-  $("popCaption").textContent = `Generation ${d.generation} · ${d.population_count} ranked tours`;
-  $("populationTable").innerHTML = pop.map((x, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${esc(x.id)}</td>
-      <td>${fmt(x.cost)}</td>
-      <td>${fmt(x.fitness, 8)}</td>
-      <td>${esc(x.method)}</td>
-      <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;">${esc((x.tour || []).join(" → "))}</td>
-    </tr>
-  `).join("");
+  const fullPop = d.population || [];
+  const totalCount = d.population_count ?? fullPop.length;
+  const limitCount = popFilterLimit === "all" ? fullPop.length : Math.min(Number(popFilterLimit) || 10, fullPop.length);
+  const visiblePop = fullPop.slice(0, limitCount);
+
+  if ($("popCaption")) {
+    $("popCaption").textContent = popCardMinimized 
+      ? `Generation ${d.generation} · ${totalCount} ranked tours (Minimized)`
+      : `Generation ${d.generation} · ${totalCount} ranked tours`;
+  }
+
+  if ($("popShowingMeta")) {
+    $("popShowingMeta").textContent = `Showing top ${visiblePop.length} of ${totalCount} ranked tours`;
+  }
+
+  const tableBody = $("populationTable");
+  if (tableBody) {
+    tableBody.innerHTML = visiblePop.map((x, i) => {
+      const tourInfo = formatTourSummary(x.tour);
+      const isSelected = selectedPopMemberId === x.id;
+      const fullFitness = x.fitness != null ? String(x.fitness) : "—";
+      const displayFitness = x.fitness != null ? Number(x.fitness).toFixed(6) : "—";
+      const methodDisplay = compactMethod(x.method);
+
+      return `
+        <tr data-pop-idx="${i}" data-pop-id="${esc(x.id)}" class="${isSelected ? 'active-row' : ''}">
+          <td style="text-align:center;">${i + 1}</td>
+          <td style="text-align:center;">${esc(x.id)}</td>
+          <td class="cost-cell">${fmt(x.cost)}</td>
+          <td class="fitness-cell" title="Exact fitness: ${esc(fullFitness)}">${esc(displayFitness)}</td>
+          <td class="method-cell" title="${esc(x.method)}">${esc(methodDisplay)}</td>
+          <td class="tour-seq-cell" title="Full Tour (${tourInfo.count} cities):&#10;${esc(tourInfo.full)}&#10;(Click row to preview on canvas)">
+            <div class="tour-chip-wrap">
+              <span class="tour-summary-text">${esc(tourInfo.summary)}</span>
+              <span class="tour-badge">${tourInfo.count}n</span>
+              <button type="button" class="tour-copy-btn" title="Copy full tour sequence" data-tour="${esc(tourInfo.full)}">📋</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    // Row selection and canvas preview
+    tableBody.querySelectorAll("tr").forEach(tr => {
+      tr.onclick = (e) => {
+        if (e.target.closest(".tour-copy-btn")) return;
+        const idx = Number(tr.dataset.popIdx);
+        const member = visiblePop[idx];
+        if (member && Array.isArray(member.tour)) {
+          selectedPopMemberId = member.id;
+          tableBody.querySelectorAll("tr").forEach(r => r.classList.remove("active-row"));
+          tr.classList.add("active-row");
+          if ($("selectedRoute")) $("selectedRoute").textContent = member.tour.join(" → ");
+          if ($("routeCaption")) $("routeCaption").textContent = `Visualizing Population Individual #${member.id} (Cost: ${fmt(member.cost)})`;
+          renderRouteCanvas(member.tour, d.route_coords);
+        }
+      };
+    });
+
+    // Copy tour sequence button
+    tableBody.querySelectorAll(".tour-copy-btn").forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const full = btn.dataset.tour;
+        if (navigator.clipboard && full) {
+          navigator.clipboard.writeText(full).then(() => {
+            const original = btn.textContent;
+            btn.textContent = "✓";
+            setTimeout(() => { btn.textContent = original; }, 1500);
+          }).catch(() => {});
+        }
+      };
+    });
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -972,6 +1061,32 @@ $("jumpLatest").onclick = () => {
   const gens = S?.generations_available || [];
   if (gens.length) selectGeneration(gens[gens.length - 1], true);
 };
+
+// Population Block Controls (Filter pills & Minimize toggle)
+document.querySelectorAll("#popLimitPills .pill-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#popLimitPills .pill-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    popFilterLimit = btn.dataset.limit || "10";
+    renderGenerationDetail();
+  };
+});
+
+const btnTogglePop = $("btnTogglePopCard");
+if (btnTogglePop) {
+  btnTogglePop.onclick = () => {
+    popCardMinimized = !popCardMinimized;
+    const card = $("popMembersCard");
+    const icon = $("popMinIcon");
+    if (card) {
+      card.classList.toggle("is-minimized", popCardMinimized);
+    }
+    if (icon) {
+      icon.textContent = popCardMinimized ? "+" : "−";
+    }
+    renderGenerationDetail();
+  };
+}
 
 // Execution Toolbar
 $("runBtn").onclick = async () => {

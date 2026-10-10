@@ -344,23 +344,43 @@
           </div>
         </section>
 
-        <section class="glass-card">
-          <div class="card-title-inline">Population Members (Selected Gen)</div>
-          <div class="caption" id="popCaption">Ranked individuals in generation</div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>ID</th>
-                  <th>Cost</th>
-                  <th>Fitness</th>
-                  <th>Construction</th>
-                  <th>Tour Sequence</th>
-                </tr>
-              </thead>
-              <tbody id="populationTable"></tbody>
-            </table>
+        <section class="glass-card" id="popMembersCard">
+          <div class="head-between">
+            <div>
+              <div class="card-title-inline">Population Members (Selected Gen)</div>
+              <div class="caption" id="popCaption">Ranked individuals in generation</div>
+            </div>
+            <div class="pop-card-controls">
+              <div class="filter-pills" id="popLimitPills">
+                <button type="button" class="pill-btn active" data-limit="10" title="Show Top 10 Ranked Tours">Top 10</button>
+                <button type="button" class="pill-btn" data-limit="25" title="Show Top 25 Ranked Tours">Top 25</button>
+                <button type="button" class="pill-btn" data-limit="all" title="Show All Ranked Tours">All</button>
+              </div>
+              <button type="button" class="btn-minimize-pop" id="btnTogglePopCard" title="Minimize / Expand Population Block">
+                <span id="popMinIcon">−</span>
+              </button>
+            </div>
+          </div>
+          <div id="popCardBody" class="card-collapsible-body">
+            <div class="table-wrap pop-table-wrap">
+              <table class="pop-table">
+                <thead>
+                  <tr>
+                    <th style="width:28px;text-align:center;">#</th>
+                    <th style="width:34px;text-align:center;">ID</th>
+                    <th style="width:54px;text-align:right;">Cost</th>
+                    <th style="width:68px;text-align:right;">Fitness</th>
+                    <th style="width:86px;">Method</th>
+                    <th>Tour Sequence</th>
+                  </tr>
+                </thead>
+                <tbody id="populationTable"></tbody>
+              </table>
+            </div>
+            <div class="table-footer-meta">
+              <span id="popShowingMeta">Showing top 10 ranked tours</span>
+              <span class="click-hint">Click row to preview on canvas</span>
+            </div>
           </div>
         </section>
       </div>
