@@ -398,7 +398,7 @@ function renderGenerationDetail() {
     ["Applied Operator", r.operator || "Initialization"],
     ["Population Diversity", r.diversity != null ? fmt(r.diversity, 4) : "—"],
     ["PMG Memory Trust", fmt(r.memory_trust, 3)],
-    ["Selective LKH-3", r.lkh_applied ? "Polished Elite" : "Not scheduled"],
+    ["Selective LKH-3", r.lkh_applied ? `Polished (${r.lkh_status || 'improved'}, ${fmt(r.lkh_duration, 4)}s)` : (S?.lkh?.calls_total > 0 ? `Active (${S.lkh.calls_total} calls total)` : "Scheduled (cadence=5)")],
     ["Double-Bridge 4-Opt", r.double_bridge_applied ? "Perturbation Active" : "Normal"],
     ["Best Individual ID", r.best_id ?? "—"],
     ["New Global Best", r.new_global_best ? "Yes (★)" : "No"],
@@ -1089,6 +1089,44 @@ if (btnTogglePop) {
 }
 
 // Execution Toolbar
+const stepBtn = $("stepBtn");
+if (stepBtn) {
+  stepBtn.onclick = async () => {
+    try {
+      stepBtn.disabled = true;
+      const res = await api("/api/run/step", { method: "POST" });
+      render(res.payload || res);
+    } catch (e) {
+      alert(`Step notice: ${e.message}`);
+    } finally {
+      stepBtn.disabled = false;
+    }
+  };
+}
+
+const lkhPolishBtn = $("lkhPolishBtn");
+if (lkhPolishBtn) {
+  lkhPolishBtn.onclick = async () => {
+    try {
+      lkhPolishBtn.disabled = true;
+      lkhPolishBtn.innerHTML = `<span>⏳</span> <span>Polishing...</span>`;
+      const res = await api("/api/lkh/polish", { method: "POST" });
+      if (res && res.payload) {
+        render(res.payload);
+      }
+      const note = res.improved
+        ? `⚡ LKH-3 successfully polished best tour to ${fmt(res.polished_cost)} (-${fmt(res.improvement)}) in ${fmt(res.duration, 4)}s!`
+        : `⚡ LKH-3 verified best tour (${fmt(res.polished_cost)}) in ${fmt(res.duration, 4)}s.\nStatus: ${res.status}`;
+      alert(note);
+    } catch (e) {
+      alert(`LKH polish notice: ${e.message}`);
+    } finally {
+      lkhPolishBtn.disabled = false;
+      lkhPolishBtn.innerHTML = `<span>⚡</span> <span>Polish with LKH-3</span>`;
+    }
+  };
+}
+
 $("runBtn").onclick = async () => {
   try {
     const res = await api("/api/run-all/start", { method: "POST" });

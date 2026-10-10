@@ -184,6 +184,15 @@ def stop_experiment():
         return {"ok": True, "message": "Stop requested."}
 
 
+@router.post("/lkh/polish")
+@router.post("/lkh/run")
+def run_lkh_polish():
+    try:
+        return service.polish_with_lkh()
+    except Exception as e:
+        raise HTTPException(500, f"LKH-3 polish failed: {e}")
+
+
 @router.get("/report/status")
 def get_report_status(run_id: Optional[str] = Query(None)):
     target_run = run_id or service.state.get("run_id")

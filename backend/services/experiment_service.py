@@ -16,7 +16,8 @@ import pandas as pd
 from fastapi import HTTPException
 
 from backend.config import FIXTURES_DIR, RUNS_DIR
-from backend.optimizer.core import run_generation, setup_state
+from backend.optimizer.core import run_generation, setup_state, tour_length
+from backend.optimizer.lkh import selective_lkh_detailed
 from backend.optimizer.models import TSPInstance, best_known, gap_percent, load_any_instance
 from backend.storage.file_store import persist_run_artifacts
 
@@ -253,6 +254,76 @@ class ExperimentService:
                         persist_run_artifacts(st, self.state.get("run_id"), RUNS_DIR)
                     except Exception as err:
                         print("Auto-persistence note:", err)
+
+    def polish_with_lkh(self) -> dict[str, Any]:
+        with self.lock:
+            st = self.state.get("st")
+            if not st:
+                raise ValueError("No active experiment state found.")
+            inst = st["instance"]
+            cfg = st["config"]
+            current_tour = st["global_best_tour"]
+            dist = inst.dist
+            orig_cost = float(st["global_best_cost"])
+
+            int_mat = st.get("int_matrix")
+            if int_mat is None:
+                int_mat = np.rint(dist).astype(int).tolist()
+                st["int_matrix"] = int_mat
+
+            t0 = time.perf_counter()
+            polished, improved, status_str, dur = selective_lkh_detailed(
+                tour=current_tour,
+                dist=dist,
+                runs=getattr(cfg, "lkh_runs", 1),
+                max_trials=getattr(cfg, "lkh_max_trials", 50),
+                timeout_sec=getattr(cfg, "lkh_max_seconds_per_call", 5.0),
+                instance_name=inst.name,
+                cache_enabled=getattr(cfg, "lkh_cache_enabled", True),
+                int_matrix=int_mat,
+            )
+            polished_cost = tour_length(polished, dist)
+            dur_total = time.perf_counter() - t0
+
+            st["lkh_calls_total"] = st.get("lkh_calls_total", 0) + 1
+            st["lkh_last_duration"] = dur_total
+            st["last_lkh_generation"] = st.get("generation", 0)
+
+            c_gain = max(0.0, orig_cost - polished_cost)
+            if improved and c_gain > 1e-9:
+                st["global_best_tour"] = polished[:]
+                st["global_best_cost"] = float(polished_cost)
+                st["lkh_status"] = "improved"
+                msg = f"LKH-3 polished tour from {orig_cost:,.2f} to {polished_cost:,.2f} (-{c_gain:,.2f}) in {dur_total:.4f}s"
+                st["diagnostics"].append(msg)
+            else:
+                st["lkh_status"] = "verified_optimal" if (status_str == "improved" or c_gain == 0) else status_str
+                msg = f"LKH-3 verified best tour at cost {polished_cost:,.2f} in {dur_total:.4f}s"
+                st["diagnostics"].append(msg)
+
+            # Update latest record if available
+            if st.get("records"):
+                rec = st["records"][-1]
+                rec["lkh_applied"] = True
+                rec["lkh_improvements"] = rec.get("lkh_improvements", 0) + (1 if improved else 0)
+                rec["lkh_status"] = st["lkh_status"]
+                rec["lkh_duration"] = dur_total
+                rec["lkh_calls_total"] = st["lkh_calls_total"]
+                if improved and c_gain > 1e-9:
+                    rec["best_cost"] = float(polished_cost)
+                    rec["route"] = polished[:]
+
+            return {
+                "ok": True,
+                "improved": bool(improved and c_gain > 1e-9),
+                "original_cost": float(orig_cost),
+                "polished_cost": float(polished_cost),
+                "improvement": float(c_gain),
+                "duration": float(dur_total),
+                "status": st["lkh_status"],
+                "message": msg,
+                "payload": self.payload(st, compact=False),
+            }
 
     def load_csv(self, data: bytes, name: str) -> TSPInstance:
         df = pd.read_csv(io.BytesIO(data))
