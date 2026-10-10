@@ -2,31 +2,41 @@
 setlocal enabledelayedexpansion
 title Adaptive Evolution Research Console v4.2 - Launcher
 
-:: 1. Determine the extracted project directory (supports paths with spaces)
+:: 1. Determine extracted project directory (supports paths with spaces)
 cd /d "%~dp0"
 
 echo =====================================================================
 echo    Adaptive Evolution Research Console v4.2 - One-Click Launcher
-echo    Accelerated Selective LKH & Crystal Glassmorphism UI
+echo    Accelerated Selective LKH and Crystal Glassmorphism UI
 echo =====================================================================
 echo.
 
 :: 2 & 3. Detect compatible Python installation (>= 3.10)
 set "PY_CMD="
 
-:: Check py launcher
 py -3.11 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-if !errorlevel! equ 0 ( set "PY_CMD=py -3.11" & goto :PYTHON_READY )
+if not errorlevel 1 (
+    set "PY_CMD=py -3.11"
+    goto :PYTHON_READY
+)
 
 py -3.10 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-if !errorlevel! equ 0 ( set "PY_CMD=py -3.10" & goto :PYTHON_READY )
+if not errorlevel 1 (
+    set "PY_CMD=py -3.10"
+    goto :PYTHON_READY
+)
 
 py -3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-if !errorlevel! equ 0 ( set "PY_CMD=py -3" & goto :PYTHON_READY )
+if not errorlevel 1 (
+    set "PY_CMD=py -3"
+    goto :PYTHON_READY
+)
 
-:: Check system python in PATH
 python -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-if !errorlevel! equ 0 ( set "PY_CMD=python" & goto :PYTHON_READY )
+if not errorlevel 1 (
+    set "PY_CMD=python"
+    goto :PYTHON_READY
+)
 
 :: Check standard local appdata and program files directories
 for %%D in (
@@ -42,7 +52,7 @@ for %%D in (
 ) do (
     if exist "%%~D" (
         "%%~D" -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-        if !errorlevel! equ 0 (
+        if not errorlevel 1 (
             set "PY_CMD="%%~D""
             goto :PYTHON_READY
         )
@@ -56,14 +66,14 @@ echo.
 
 :: Strategy A: Windows Package Manager (winget)
 where winget >nul 2>&1
-if %errorlevel% equ 0 (
+if not errorlevel 1 (
     echo [*] Windows Package Manager (winget) detected. Installing Python 3.10...
     winget install -e --id Python.Python.3.10 --scope user --override "/quiet InstallAllUsers=0 PrependPath=1" --accept-source-agreements --accept-package-agreements
     
     :: Refresh path variables
     set "PATH=%LOCALAPPDATA%\Programs\Python\Python310;%LOCALAPPDATA%\Programs\Python\Python310\Scripts;!PATH!"
     python -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)" >nul 2>&1
-    if !errorlevel! equ 0 (
+    if not errorlevel 1 (
         set "PY_CMD=python"
         echo [+] Python installed successfully via winget!
         goto :PYTHON_READY
@@ -117,69 +127,67 @@ echo.
 set "VENV_DIR=%~dp0.venv"
 set "VENV_PY=%VENV_DIR%\Scripts\python.exe"
 
-if not exist "!VENV_PY!" (
-    echo [*] Initializing isolated project virtual environment (.venv)...
-    !PY_CMD! -m venv "%VENV_DIR%"
-    if not exist "!VENV_PY!" (
-        echo [ERROR] Failed to initialize virtual environment in %VENV_DIR%.
-        pause
-        exit /b 1
-    )
-    echo [+] Virtual environment initialized successfully.
-)
+if exist "%VENV_PY%" goto :VENV_READY
 
+echo [*] Initializing isolated project virtual environment (.venv)...
+!PY_CMD! -m venv "%VENV_DIR%"
+if not exist "%VENV_PY%" (
+    echo [ERROR] Failed to initialize virtual environment in %VENV_DIR%.
+    pause
+    exit /b 1
+)
+echo [+] Virtual environment initialized successfully.
+
+:VENV_READY
 :: 6. Dependency management with SHA-256 hash caching
 set "REQ_FILE=%~dp0requirements.txt"
 set "HASH_FILE=%VENV_DIR%\.requirements.hash"
-set "NEED_INSTALL=0"
 
-if not exist "!HASH_FILE!" (
-    set "NEED_INSTALL=1"
-) else (
-    "!VENV_PY!" -c "import hashlib, sys; h = hashlib.sha256(open(r'!REQ_FILE!', 'rb').read()).hexdigest(); saved = open(r'!HASH_FILE!').read().strip(); sys.exit(0 if h == saved else 1)" >nul 2>&1
-    if !errorlevel! neq 0 set "NEED_INSTALL=1"
-)
+if not exist "%HASH_FILE%" goto :DO_INSTALL
 
-:: Check core imports even if hash matches
-if "!NEED_INSTALL!"=="0" (
-    "!VENV_PY!" -c "import fastapi, uvicorn, numpy, reportlab" >nul 2>&1
-    if !errorlevel! neq 0 (
-        echo [*] Core runtime packages incomplete. Triggering installation...
-        set "NEED_INSTALL=1"
-    )
-)
+:: Check if requirements hash matches
+"%VENV_PY%" -c "import hashlib, sys; sys.exit(0 if hashlib.sha256(open(r'%REQ_FILE%', 'rb').read()).hexdigest() == open(r'%HASH_FILE%').read().strip() else 1)" >nul 2>&1
+if errorlevel 1 goto :DO_INSTALL
 
-if "!NEED_INSTALL!"=="1" (
-    echo [*] Installing runtime dependencies from requirements.txt...
-    echo [*] (This only runs on initial setup or when requirements change)
+:: Verify core imports
+"%VENV_PY%" -c "import fastapi, uvicorn, numpy, reportlab" >nul 2>&1
+if errorlevel 1 goto :DO_INSTALL
+
+goto :DEPS_OK
+
+:DO_INSTALL
+echo [*] Installing runtime dependencies from requirements.txt...
+echo [*] This only runs on initial setup or when requirements change.
+echo.
+"%VENV_PY%" -m pip install --upgrade pip
+"%VENV_PY%" -m pip install -r "%REQ_FILE%"
+if errorlevel 1 (
     echo.
-    "%VENV_DIR%\Scripts\python.exe" -m pip install --upgrade pip
-    "%VENV_DIR%\Scripts\python.exe" -m pip install -r "%REQ_FILE%"
-    if !errorlevel! neq 0 (
-        echo.
-        echo [ERROR] Dependency installation encountered an issue.
-        echo Please ensure you have internet access on first launch and retry.
-        pause
-        exit /b 1
-    )
-
-    :: Validate that required packages import cleanly
-    "!VENV_PY!" -c "import fastapi, uvicorn, numpy, reportlab" >nul 2>&1
-    if !errorlevel! neq 0 (
-        echo.
-        echo [ERROR] Package verification failed: core modules could not be imported.
-        pause
-        exit /b 1
-    )
-
-    :: Save hash on success
-    "!VENV_PY!" -c "import hashlib; open(r'!HASH_FILE!', 'w').write(hashlib.sha256(open(r'!REQ_FILE!', 'rb').read()).hexdigest())"
-    echo.
-    echo [+] All production dependencies verified and ready.
-) else (
-    echo [+] Dependencies up to date and verified.
+    echo [ERROR] Dependency installation encountered an issue.
+    echo Please ensure you have internet access on first launch and retry.
+    pause
+    exit /b 1
 )
 
+:: Validate that required packages import cleanly
+"%VENV_PY%" -c "import fastapi, uvicorn, numpy, reportlab" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Package verification failed: core modules could not be imported.
+    pause
+    exit /b 1
+)
+
+:: Save hash on success
+"%VENV_PY%" -c "import hashlib; open(r'%HASH_FILE%', 'w').write(hashlib.sha256(open(r'%REQ_FILE%', 'rb').read()).hexdigest())"
+echo.
+echo [+] All production dependencies verified and ready.
+goto :START_APP
+
+:DEPS_OK
+echo [+] Dependencies up to date and verified.
+
+:START_APP
 echo.
 echo =====================================================================
 echo    Launching Adaptive Evolution Research Console...
@@ -189,10 +197,9 @@ echo =====================================================================
 echo.
 
 :: 7. Start application via supervisor (checks health, frees ports, opens browser)
-"!VENV_PY!" run_console.py
-if !errorlevel! neq 0 (
+"%VENV_PY%" run_console.py
+if errorlevel 1 (
     echo.
-    echo [!] Server process exited with code !errorlevel!.
+    echo [!] Server process exited with code %errorlevel%.
     pause
 )
-
