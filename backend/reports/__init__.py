@@ -10,3 +10,4 @@ __all__ = [
     "generate_pdf_report",
     "render_report_charts",
 ]
+

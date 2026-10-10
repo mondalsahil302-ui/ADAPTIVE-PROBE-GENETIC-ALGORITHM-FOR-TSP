@@ -121,3 +121,4 @@ def run_benchmark(output_filename: str = "optimized_benchmark.json"):
 if __name__ == "__main__":
     out_file = sys.argv[1] if len(sys.argv) > 1 else "optimized_benchmark.json"
     run_benchmark(out_file)
+

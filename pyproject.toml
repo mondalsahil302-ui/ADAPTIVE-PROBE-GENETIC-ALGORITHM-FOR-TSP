@@ -44,3 +44,4 @@ addopts = "-v --tb=short"
 line-length = 120
 target-version = "py310"
 exclude = [".venv", "venv", "__pycache__", "runs", "data"]
+

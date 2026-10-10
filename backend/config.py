@@ -16,11 +16,12 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 DATA_DIR = Path(os.environ.get("DATA_DIR", BASE_DIR / "data"))
 RUNS_DIR = Path(os.environ.get("RUNS_DIR", DATA_DIR / "runs"))
 UPLOADS_DIR = Path(os.environ.get("UPLOADS_DIR", DATA_DIR / "uploads"))
+CACHE_DIR = Path(os.environ.get("CACHE_DIR", DATA_DIR / "cache"))
 ARTIFACTS_DIR = BASE_DIR / "artifacts"
 FIXTURES_DIR = BASE_DIR / "tests" / "fixtures"
 
 # Ensure runtime directories exist
-for p in (DATA_DIR, RUNS_DIR, UPLOADS_DIR, ARTIFACTS_DIR):
+for p in (DATA_DIR, RUNS_DIR, UPLOADS_DIR, CACHE_DIR, ARTIFACTS_DIR):
     p.mkdir(parents=True, exist_ok=True)
 
 
@@ -125,3 +126,4 @@ def make_config(overrides: Optional[dict[str, Any] | GAConfig] = None, **kwargs)
         cfg.lkh_cache_enabled = os.environ["LKH_CACHE_ENABLED"].lower() in ("true", "1", "yes")
 
     return cfg
+

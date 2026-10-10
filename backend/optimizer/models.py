@@ -240,3 +240,4 @@ def load_any_instance(path: str | Path) -> TSPInstance:
         except Exception:
             pass
     return _plain_tsplib(path)
+

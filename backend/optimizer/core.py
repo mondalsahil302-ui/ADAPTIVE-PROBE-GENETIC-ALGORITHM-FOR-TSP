@@ -736,3 +736,4 @@ def run_generation(st: dict[str, Any], options: Optional[dict[str, Any]] = None)
     if not stagnant and cur_best.cost < prev - 1e-9:
         pmg.increase_trust(0.05)
     return rec
+

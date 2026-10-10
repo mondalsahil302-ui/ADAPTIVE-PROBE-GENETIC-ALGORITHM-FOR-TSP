@@ -230,3 +230,4 @@ def download_artifacts_zip(run_id: Optional[str] = Query(None)):
 @router.get("/runs")
 def list_runs():
     return {"runs": list_saved_runs(RUNS_DIR)}
+

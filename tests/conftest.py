@@ -38,3 +38,4 @@ def deterministic_instance_10():
     d = coords[:, None, :] - coords[None, :, :]
     dist = np.sqrt((d ** 2).sum(axis=2))
     return TSPInstance("test10", 10, list(range(10)), dist, coords, "EUC_2D")
+

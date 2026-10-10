@@ -19,7 +19,7 @@ VENV_PYTHON = ROOT / ".venv" / ("Scripts" if sys.platform == "win32" else "bin")
 
 
 def free_port(port: int = 8000):
-    """Frees port if held by a previous dangling process on Windows."""
+    """Frees port if held by a previous dangling process on Windows or POSIX."""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(0.5)
@@ -33,12 +33,40 @@ def free_port(port: int = 8000):
                             pid = parts[-1]
                             subprocess.run(f"taskkill /f /pid {pid}", shell=True, capture_output=True)
                     time.sleep(0.5)
+                else:
+                    try:
+                        subprocess.run(f"fuser -k {port}/tcp", shell=True, capture_output=True)
+                        time.sleep(0.5)
+                    except Exception:
+                        pass
     except Exception:
         pass
 
 
+def check_dependencies():
+    """Validates that core dependencies are installed before launching."""
+    required = ["fastapi", "uvicorn", "numpy", "reportlab"]
+    missing = []
+    for mod in required:
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(mod)
+    if missing:
+        print("[!]" + "=" * 60)
+        print(f"  [ERROR] Missing required Python package(s): {', '.join(missing)}")
+        print("  Please run the automated launcher:")
+        print("    - Windows:     double-click 'run_windows.bat'")
+        print("    - macOS/Linux: ./run_mac_linux.sh")
+        print("  Or install manually:")
+        print("    pip install -r requirements.txt")
+        print("=" * 63)
+        sys.exit(1)
+
+
 def main():
     free_port(8000)
+    check_dependencies()
 
     py_exec = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
 

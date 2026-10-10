@@ -49,6 +49,8 @@ def check_paths():
         ".gitignore",
         "render.yaml",
         "README.md",
+        "PORTABLE_SETUP.md",
+        "STUDY_MAP.md",
         "run_windows.bat",
         "run_mac_linux.sh",
         "artifacts/.gitkeep",

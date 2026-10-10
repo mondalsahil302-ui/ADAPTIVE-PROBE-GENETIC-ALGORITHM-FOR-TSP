@@ -182,3 +182,4 @@ def double_bridge(tour: list[int], rng: random.Random) -> list[int]:
         return candidate
     p1, p2, p3 = sorted(rng.sample(range(1, n), 3))
     return tour[:p1] + tour[p2:p3] + tour[p1:p2] + tour[p3:]
+
