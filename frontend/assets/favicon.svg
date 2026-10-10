@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Background rounded hexagon / shield -->
+  <rect width="64" height="64" rx="16" fill="#0b0f19"/>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="url(#grad)" stroke-width="1.5" stroke-opacity="0.6"/>
+  <!-- TSP Polygon Tour Loop -->
+  <polygon points="32,10 52,22 46,48 18,48 12,22" fill="none" stroke="url(#grad)" stroke-width="3" filter="url(#glow)"/>
+  <!-- Internal probe chords -->
+  <line x1="32" y1="10" x2="46" y2="48" stroke="#38bdf8" stroke-width="1" stroke-dasharray="2 2" stroke-opacity="0.8"/>
+  <line x1="12" y1="22" x2="52" y2="22" stroke="#e879f9" stroke-width="1" stroke-dasharray="2 2" stroke-opacity="0.8"/>
+  <!-- Glowing City Nodes -->
+  <circle cx="32" cy="10" r="4.5" fill="#38bdf8" filter="url(#glow)"/>
+  <circle cx="52" cy="22" r="4.5" fill="#c084fc" filter="url(#glow)"/>
+  <circle cx="46" cy="48" r="4.5" fill="#f43f5e" filter="url(#glow)"/>
+  <circle cx="18" cy="48" r="4.5" fill="#06b6d4" filter="url(#glow)"/>
+  <circle cx="12" cy="22" r="4.5" fill="#a855f7" filter="url(#glow)"/>
+  <!-- Central pulse node -->
+  <circle cx="32" cy="30" r="2.5" fill="#ffffff" filter="url(#glow)"/>
+</svg>

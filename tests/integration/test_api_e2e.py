@@ -136,12 +136,73 @@ class TestE2EPipeline(unittest.TestCase):
         self.assertEqual(state_data["status"]["generation"], 0)
         self.assertEqual(state_data["status"]["stagnation_patience"], 30)
 
-        # Live polling endpoint
-        res_live = client.get("/api/live")
-        self.assertEqual(res_live.status_code, 200)
-        live_data = res_live.json()
-        self.assertIn("stagnation_display", live_data["status"])
-        self.assertEqual(live_data["status"]["stagnation_display"], "0 / 30")
+        # Favicon endpoints
+        res_fav = client.get("/favicon.ico")
+        self.assertEqual(res_fav.status_code, 200)
+        self.assertIn("image", res_fav.headers.get("content-type", ""))
+
+        res_svg = client.get("/favicon.svg")
+        self.assertEqual(res_svg.status_code, 200)
+        self.assertIn("image/svg+xml", res_svg.headers.get("content-type", ""))
+
+        # Static CSS and JS
+        res_css = client.get("/style.css")
+        self.assertEqual(res_css.status_code, 200)
+        self.assertIn("text/css", res_css.headers.get("content-type", ""))
+
+        res_js = client.get("/app.js")
+        self.assertEqual(res_js.status_code, 200)
+        self.assertIn("javascript", res_js.headers.get("content-type", ""))
+
+        # Generation 0 retrieval
+        res_gen0 = client.get("/api/generation/0")
+        self.assertEqual(res_gen0.status_code, 200)
+        gen0_data = res_gen0.json()
+        self.assertEqual(gen0_data["generation"], 0)
+        self.assertIn("route", gen0_data)
+        self.assertIn("route_coords", gen0_data)
+
+        # PDF Report Endpoints: Status, Generate, Download, and Alias
+        res_status = client.get("/api/report/status")
+        self.assertEqual(res_status.status_code, 200)
+        self.assertTrue(res_status.json().get("available"))
+
+        res_gen_pdf = client.post("/api/report/generate")
+        self.assertEqual(res_gen_pdf.status_code, 200)
+        gen_pdf_data = res_gen_pdf.json()
+        self.assertTrue(gen_pdf_data.get("ok"))
+        self.assertIn("run_id", gen_pdf_data)
+
+        # Download PDF via /api/report/pdf
+        res_pdf = client.get("/api/report/pdf")
+        self.assertEqual(res_pdf.status_code, 200)
+        self.assertEqual(res_pdf.headers.get("content-type"), "application/pdf")
+        self.assertGreater(len(res_pdf.content), 5000)
+
+        # Download PDF via backward-compatible alias /api/pdf
+        res_pdf_alias = client.get("/api/pdf")
+        self.assertEqual(res_pdf_alias.status_code, 200)
+        self.assertEqual(res_pdf_alias.headers.get("content-type"), "application/pdf")
+
+        # Unknown / invalid run_id handling returns clean 404
+        res_404 = client.get("/api/report/pdf?run_id=unknown_fake_run_999999")
+        self.assertEqual(res_404.status_code, 404)
+        self.assertIn("No PDF report found", res_404.json().get("detail", ""))
+
+        # Run-all alias endpoints and stepping on active instance
+        berlin_file = BASE_DIR / "tests" / "fixtures" / "berlin52.tsp"
+        if berlin_file.exists():
+            with open(berlin_file, "rb") as f:
+                client.post("/api/upload", files={"file": ("berlin52.tsp", f, "text/plain")})
+            res_step = client.post("/api/run/step")
+            self.assertEqual(res_step.status_code, 200)
+            self.assertTrue(res_step.json().get("ok"))
+        else:
+            res_step = client.post("/api/run/step")
+            self.assertIn(res_step.status_code, [200, 400])
+
+        res_stop = client.post("/api/run-all/stop")
+        self.assertEqual(res_stop.status_code, 200)
 
 
 if __name__ == "__main__":

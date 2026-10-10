@@ -3,6 +3,7 @@ FastAPI Router with all research console API endpoints.
 """
 from __future__ import annotations
 
+import shutil
 import tempfile
 import threading
 import time
@@ -14,7 +15,7 @@ from typing import Optional
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 
-from backend.config import RUNS_DIR
+from backend.config import BASE_DIR, RUNS_DIR
 from backend.optimizer.core import run_generation, setup_state
 from backend.optimizer.lkh import HAS_ELKAI
 from backend.optimizer.models import load_any_instance, tsplib95
@@ -113,6 +114,7 @@ def reset_experiment():
         return service.payload(service.state["st"], compact=False)
 
 
+@router.post("/run-all/start")
 @router.post("/run/start")
 def start_experiment(req: RunConfig = None):
     req = req or RunConfig()
@@ -167,6 +169,7 @@ def step_experiment(req: RunConfig = None):
         return {"ok": True, "record": rec, "payload": service.payload(st, compact=True)}
 
 
+@router.post("/run-all/stop")
 @router.post("/run/stop")
 def stop_experiment():
     with service.lock:
@@ -181,6 +184,51 @@ def stop_experiment():
         return {"ok": True, "message": "Stop requested."}
 
 
+@router.get("/report/status")
+def get_report_status(run_id: Optional[str] = Query(None)):
+    target_run = run_id or service.state.get("run_id")
+    if not target_run:
+        return {"available": False, "run_id": None, "reason": "No run_id specified"}
+    
+    pdf_path = RUNS_DIR / target_run / "report.pdf"
+    if pdf_path.exists() and pdf_path.stat().st_size > 0:
+        return {"available": True, "run_id": target_run, "size_bytes": pdf_path.stat().st_size}
+    
+    hist_pdf = BASE_DIR / "research" / "historical_runs" / target_run / "report.pdf"
+    if hist_pdf.exists() and hist_pdf.stat().st_size > 0:
+        return {"available": True, "run_id": target_run, "size_bytes": hist_pdf.stat().st_size}
+    
+    st = service.state.get("st")
+    if st and service.state.get("run_id") == target_run:
+        return {"available": True, "can_generate": True, "run_id": target_run}
+    
+    return {"available": False, "run_id": target_run}
+
+
+@router.post("/report/generate")
+def generate_report_endpoint(run_id: Optional[str] = Query(None)):
+    target_run = run_id or service.state.get("run_id")
+    if not target_run:
+        raise HTTPException(400, "No active or selected experiment.")
+    
+    run_dir = RUNS_DIR / target_run
+    run_dir.mkdir(parents=True, exist_ok=True)
+    pdf_path = run_dir / "report.pdf"
+    
+    st = service.state.get("st")
+    if not st:
+        raise HTTPException(400, "No experiment state available to generate report.")
+    
+    generate_pdf_report(st, target_run, pdf_path)
+    return {
+        "ok": True,
+        "run_id": target_run,
+        "path": str(pdf_path),
+        "size_bytes": pdf_path.stat().st_size,
+    }
+
+
+@router.get("/report/pdf")
 @router.get("/pdf")
 def download_pdf(run_id: Optional[str] = Query(None)):
     target_run = run_id or service.state.get("run_id")
@@ -188,20 +236,41 @@ def download_pdf(run_id: Optional[str] = Query(None)):
         raise HTTPException(400, "No active or selected experiment.")
 
     run_dir = RUNS_DIR / target_run
-    run_dir.mkdir(parents=True, exist_ok=True)
     pdf_path = run_dir / "report.pdf"
 
-    st = service.state.get("st")
-    if st:
-        generate_pdf_report(st, target_run, pdf_path)
-    elif not pdf_path.exists():
-        raise HTTPException(404, f"No PDF report found for run {target_run}.")
+    # 1. Existing report in run directory
+    if pdf_path.exists() and pdf_path.stat().st_size > 0:
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf",
+            filename=f"APGGS_Report_{target_run}.pdf",
+        )
 
-    return FileResponse(
-        pdf_path,
-        media_type="application/pdf",
-        filename=f"APGGS_Report_{target_run}.pdf",
-    )
+    # 2. Check if preserved in historical_runs
+    hist_pdf = BASE_DIR / "research" / "historical_runs" / target_run / "report.pdf"
+    if hist_pdf.exists() and hist_pdf.stat().st_size > 0:
+        run_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(hist_pdf, pdf_path)
+        return FileResponse(
+            pdf_path,
+            media_type="application/pdf",
+            filename=f"APGGS_Report_{target_run}.pdf",
+        )
+
+    # 3. Generate on-demand if in-memory state matches
+    st = service.state.get("st")
+    if st and service.state.get("run_id") == target_run:
+        run_dir.mkdir(parents=True, exist_ok=True)
+        generate_pdf_report(st, target_run, pdf_path)
+        if pdf_path.exists() and pdf_path.stat().st_size > 0:
+            return FileResponse(
+                pdf_path,
+                media_type="application/pdf",
+                filename=f"APGGS_Report_{target_run}.pdf",
+            )
+
+    # 4. If neither, return informative 404
+    raise HTTPException(404, f"No PDF report found for run '{target_run}'.")
 
 
 @router.get("/artifacts/zip")

@@ -118,7 +118,7 @@ def build_zip() -> tuple[Path, Path, Path, dict]:
                 # Check permissions
                 zinfo = zipfile.ZipInfo.from_file(abs_file, archive_name)
                 # Ensure executable bit for shell scripts on POSIX
-                if rel_file.suffix == ".sh" or rel_file.name == "run_mac_linux.sh":
+                if rel_file.suffix == ".sh" or rel_file.name in ("run_mac_linux.sh", "Run_Config.sh", "Run_Config"):
                     zinfo.external_attr = (0o755 << 16) | 0o100000
                 else:
                     zinfo.external_attr = (0o644 << 16) | 0o100000
@@ -189,15 +189,20 @@ def build_zip() -> tuple[Path, Path, Path, dict]:
 
 
 def verify_extracted_package(zip_path: Path):
-    """Extracts package to a clean temporary directory and runs test suite and smoke test."""
+    """Extracts package to a clean temporary directory with spaces and verifies test suite, smoke test, and live startup."""
     print()
     print("=" * 70)
-    print("  VERIFYING PACKAGE INTEGRITY (Clean Isolated Sandbox)")
+    print("  VERIFYING PACKAGE INTEGRITY (Clean Isolated Sandbox with Spaces)")
     print("=" * 70)
 
+    import urllib.request
+
     with tempfile.TemporaryDirectory(prefix="ae_verify_") as tmpdir:
-        extract_dir = Path(tmpdir)
-        print(f"[*] Extracting to sandbox: {extract_dir}...")
+        # Specifically create a destination path containing spaces to test path independence
+        extract_dir = Path(tmpdir) / "Adaptive Evolution Research Folder (Portable Test)"
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        print(f"[*] Extracting to sandbox path with spaces:\n    {extract_dir}...")
+        
         with zipfile.ZipFile(zip_path, "r") as zf:
             zf.extractall(extract_dir)
 
@@ -214,6 +219,9 @@ def verify_extracted_package(zip_path: Path):
             "frontend/index.html",
             "frontend/style.css",
             "frontend/app.js",
+            "frontend/favicon.ico",
+            "frontend/favicon.svg",
+            "Run_Config.bat",
             "run_windows.bat",
             "run_mac_linux.sh",
             "run_console.py",
@@ -228,7 +236,7 @@ def verify_extracted_package(zip_path: Path):
             p = target_root / req
             if not p.exists():
                 raise FileNotFoundError(f"Missing required file in extracted package: {req}")
-        print(f"[+] All critical files verified present in extracted package.")
+        print(f"[+] All {len(required_sandbox_files)} critical files verified present in extracted package.")
 
         # 2. Run validate_project.py in the sandbox
         print("[*] Running pre-flight validator inside extracted package...")
@@ -245,7 +253,7 @@ def verify_extracted_package(zip_path: Path):
             print(val_res.stdout)
             print(val_res.stderr)
             raise RuntimeError("Validation failed in extracted package!")
-        print("[+] Sandbox project validation passed (38/38 paths, 0 syntax errors).")
+        print("[+] Sandbox project validation passed (41/41 paths, 0 syntax errors).")
 
         # 3. Run unit tests in the sandbox
         print("[*] Running unit & integration tests inside extracted package...")
@@ -277,6 +285,67 @@ def verify_extracted_package(zip_path: Path):
             raise RuntimeError("Smoke test failed in extracted package!")
         print("[+] Sandbox smoke test passed (All 7 steps: Health, UI, Assets, State, Step, PDF, ZIP).")
 
+        # 5. Live server launch and query verification
+        print("[*] Performing live server startup test on sandbox instance...")
+        test_port = 8019
+        server_proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-m", "uvicorn",
+                "backend.app:app",
+                "--host", "127.0.0.1",
+                "--port", str(test_port),
+            ],
+            cwd=str(target_root),
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+
+        try:
+            # Poll health endpoint
+            health_url = f"http://127.0.0.1:{test_port}/api/health"
+            deadline = time.time() + 15.0
+            server_ready = False
+            while time.time() < deadline:
+                try:
+                    with urllib.request.urlopen(health_url, timeout=0.8) as r:
+                        if r.status == 200:
+                            server_ready = True
+                            break
+                except Exception:
+                    time.sleep(0.3)
+
+            if not server_ready:
+                raise RuntimeError(f"Live test server failed to respond on {health_url}")
+            print(f"[+] Live server started and responded on {health_url} (HTTP 200)!")
+
+            # Verify critical live routes
+            routes_to_test = [
+                ("/", 200),
+                ("/favicon.ico", 200),
+                ("/style.css", 200),
+                ("/app.js", 200),
+                ("/api/state", 200),
+                ("/api/generation/0", 200),
+                ("/api/report/pdf", 200),
+            ]
+            for route, expected_code in routes_to_test:
+                url = f"http://127.0.0.1:{test_port}{route}"
+                with urllib.request.urlopen(url, timeout=2.0) as r:
+                    if r.status != expected_code:
+                        raise RuntimeError(f"Route {route} returned HTTP {r.status}, expected {expected_code}")
+                print(f"    - GET {route} -> HTTP {expected_code} OK")
+
+            print("[+] Live server routes and PDF report verified successfully!")
+        finally:
+            server_proc.terminate()
+            try:
+                server_proc.wait(timeout=3)
+            except Exception:
+                server_proc.kill()
+            print("[+] Live test server shut down cleanly.")
+
     print("=" * 70)
     print("  [SUCCESS] All package verification checks passed with 100% integrity!")
     print("=" * 70)
@@ -285,3 +354,4 @@ def verify_extracted_package(zip_path: Path):
 if __name__ == "__main__":
     zip_file, sha_file, manifest_file, manifest = build_zip()
     verify_extracted_package(zip_file)
+

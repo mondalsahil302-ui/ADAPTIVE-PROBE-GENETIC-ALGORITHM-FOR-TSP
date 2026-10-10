@@ -235,8 +235,8 @@ function render(s) {
     startPolling();
   } else {
     stopPolling();
-    // If run finished and we haven't loaded the PDF yet, auto-refresh PDF preview
-    if (st.is_stopped && s.run_id && pdfLoadedForRun !== s.run_id) {
+    // If run finished with completed generations and we haven't loaded the PDF yet, auto-refresh PDF preview
+    if (st.is_stopped && st.generation > 0 && s.run_id && pdfLoadedForRun !== s.run_id) {
       loadPdfReport(s.run_id);
     }
   }

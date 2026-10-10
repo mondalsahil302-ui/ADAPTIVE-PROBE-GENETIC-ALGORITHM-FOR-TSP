@@ -51,8 +51,11 @@ def check_paths():
         "README.md",
         "PORTABLE_SETUP.md",
         "STUDY_MAP.md",
+        "Run_Config.bat",
         "run_windows.bat",
         "run_mac_linux.sh",
+        "frontend/favicon.ico",
+        "frontend/favicon.svg",
         "artifacts/.gitkeep",
         ".github/workflows/ci-cd.yml",
     ]

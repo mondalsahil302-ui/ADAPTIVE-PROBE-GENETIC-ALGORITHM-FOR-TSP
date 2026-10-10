@@ -11,23 +11,24 @@ This portable package is fully self-contained and pre-configured for automated f
 
 ### 🪟 Windows Users
 1. Extract the ZIP archive anywhere on your computer (e.g. `C:\Projects\Adaptive_Evolution` or your Desktop).
-2. Double-click **`run_windows.bat`**.
+2. Double-click **`Run_Config.bat`** (or `run_windows.bat`).
 3. The launcher will automatically:
-   - Detect Python (3.10+).
+   - Detect Python (3.10+), or automatically download/install it via `winget` / official installer if missing.
    - Create an isolated `.venv` virtual environment in the project directory.
    - Install and verify all runtime dependencies from `requirements.txt`.
-   - Free port `8000` if previously occupied.
-   - Start the FastAPI backend server.
+   - Free port `8000` (or dynamically fallback to an available port if occupied).
+   - Start the FastAPI backend server and wait for the `/api/health` endpoint.
    - Automatically open your default browser to **`http://127.0.0.1:8000`**.
 
 ### 🍎 macOS & 🐧 Linux Users
 1. Extract the ZIP archive.
 2. Open Terminal in the extracted project folder.
-3. Make the script executable (if needed) and run:
+3. Run the automated launcher:
    ```bash
-   chmod +x run_mac_linux.sh
-   ./run_mac_linux.sh
+   chmod +x run_mac_linux.sh Run_Config.sh
+   ./Run_Config.sh
    ```
+   *(or `./run_mac_linux.sh`)*
 4. The script will automatically bootstrap the virtual environment, install dependencies, and launch the server at **`http://127.0.0.1:8000`**.
 
 ---
@@ -135,3 +136,4 @@ For an in-depth mapping of the research paper and original Jupyter notebooks to 
 - **`README.md`** — Comprehensive architecture documentation, heuristics, and API schema.
 - **`research/notebooks/`** — Preserved original exploratory research notebooks.
 - **`research/ablation/`** — 10-Dataset ablation study logs, charts, and tables.
+

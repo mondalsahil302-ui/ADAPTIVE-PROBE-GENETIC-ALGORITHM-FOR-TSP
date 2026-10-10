@@ -64,9 +64,47 @@ def check_dependencies():
         sys.exit(1)
 
 
+def find_available_port(preferred_port: int = 8000) -> int:
+    free_port(preferred_port)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        if s.connect_ex(("127.0.0.1", preferred_port)) != 0:
+            return preferred_port
+    for p in range(preferred_port + 1, preferred_port + 20):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", p)) != 0:
+                print(f"[!] Port {preferred_port} in use. Using fallback port {p}.")
+                return p
+    return preferred_port
+
+
+def wait_for_health_and_open_browser(host: str, port: int):
+    import urllib.request
+    url = f"http://{host}:{port}"
+    health_url = f"{url}/api/health"
+    deadline = time.time() + 20.0
+    ready = False
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(health_url, timeout=0.8) as resp:
+                if resp.status == 200:
+                    ready = True
+                    break
+        except Exception:
+            time.sleep(0.3)
+    if ready:
+        print(f"[+] Health check passed (HTTP 200)! Opening browser to {url}...")
+        try:
+            webbrowser.open(url)
+        except Exception:
+            pass
+    else:
+        print(f"[!] Server is taking longer than usual to respond. Open manually: {url}")
+
+
 def main():
-    free_port(8000)
     check_dependencies()
+    port = find_available_port(int(os.environ.get("PORT", 8000)))
+    host = os.environ.get("HOST", "127.0.0.1")
 
     py_exec = str(VENV_PYTHON) if VENV_PYTHON.exists() else sys.executable
 
@@ -76,26 +114,19 @@ def main():
     print("=" * 65)
     print(f"[*] Workspace Root : {ROOT}")
     print(f"[*] Python Exec    : {py_exec}")
-    print(f"[*] Server URL     : http://127.0.0.1:8000")
+    print(f"[*] Server URL     : http://{host}:{port}")
     print("=" * 65)
     print("[*] Launching server... (Press Ctrl+C to stop)")
     print()
 
-    def open_browser():
-        time.sleep(1.2)
-        try:
-            webbrowser.open("http://127.0.0.1:8000")
-        except Exception:
-            pass
-
-    threading.Thread(target=open_browser, daemon=True).start()
+    threading.Thread(target=wait_for_health_and_open_browser, args=(host, port), daemon=True).start()
 
     cmd = [
         py_exec,
         "-m", "uvicorn",
         "backend.app:app",
-        "--host", "127.0.0.1",
-        "--port", "8000"
+        "--host", host,
+        "--port", str(port),
     ]
 
     try:

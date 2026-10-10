@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -80,6 +80,25 @@ def get_script():
         media_type="application/javascript",
         headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
     )
+
+
+@app.get("/favicon.ico", tags=["Frontend"])
+def get_favicon():
+    ico_file = FRONTEND_DIR / "favicon.ico"
+    if ico_file.exists():
+        return FileResponse(ico_file, media_type="image/x-icon")
+    svg_file = FRONTEND_DIR / "favicon.svg"
+    if svg_file.exists():
+        return FileResponse(svg_file, media_type="image/svg+xml")
+    raise HTTPException(404, "Favicon not found")
+
+
+@app.get("/favicon.svg", tags=["Frontend"])
+def get_favicon_svg():
+    svg_file = FRONTEND_DIR / "favicon.svg"
+    if svg_file.exists():
+        return FileResponse(svg_file, media_type="image/svg+xml")
+    raise HTTPException(404, "Favicon SVG not found")
 
 
 # Compatibility aliases for legacy tests and external callers

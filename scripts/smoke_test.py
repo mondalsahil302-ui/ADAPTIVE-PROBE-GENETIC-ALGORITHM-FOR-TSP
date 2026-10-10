@@ -39,22 +39,28 @@ def run_smoke_test():
     assert "Adaptive Evolution Research Console" in res.text
     print("      OK! Glassmorphism dashboard rendered successfully.")
 
-    # 3. Static assets
-    print("[3/7] Testing static CSS & JS delivery...")
+    # 3. Static assets & Favicon
+    print("[3/7] Testing static CSS, JS & Favicon delivery...")
     css_res = client.get("/style.css")
     assert css_res.status_code == 200
     js_res = client.get("/app.js")
     assert js_res.status_code == 200
-    print("      OK! /style.css and /app.js served with HTTP 200.")
+    fav_res = client.get("/favicon.ico")
+    assert fav_res.status_code == 200
+    svg_res = client.get("/favicon.svg")
+    assert svg_res.status_code == 200
+    print("      OK! /style.css, /app.js, /favicon.ico, /favicon.svg served with HTTP 200.")
 
     # 4. State endpoint
-    print("[4/7] Testing GET /api/state...")
+    print("[4/7] Testing GET /api/state and GET /api/generation/0...")
     res = client.get("/api/state")
     assert res.status_code == 200
     state = res.json()
     assert "status" in state
     assert "route" in state
     assert "lkh" in state
+    gen0_res = client.get("/api/generation/0")
+    assert gen0_res.status_code == 200
     print(f"      OK! Current instance: {state['dataset']['name']} ({state['dataset']['cities']} cities)")
 
     # 4b. Upload berlin52 for active stepping
@@ -76,13 +82,21 @@ def run_smoke_test():
         cost = step_data["payload"]["status"]["best_cost"]
         print(f"      Step {step_i}: Generation {gen} | Best Cost: {cost:,.2f}")
 
-    # 6. PDF Report Generation & Download
-    print("[6/7] Testing PDF report generation via GET /api/pdf...")
-    pdf_res = client.get("/api/pdf")
-    assert pdf_res.status_code == 200, f"PDF generation failed: {pdf_res.status_code}"
+    # 6. PDF Report Generation & Download (both /api/report/pdf and /api/pdf)
+    print("[6/7] Testing PDF report status, generation & download...")
+    status_res = client.get("/api/report/status")
+    assert status_res.status_code == 200
+    gen_res = client.post("/api/report/generate")
+    assert gen_res.status_code == 200
+    
+    pdf_res = client.get("/api/report/pdf")
+    assert pdf_res.status_code == 200, f"PDF download via /api/report/pdf failed: {pdf_res.status_code}"
     pdf_bytes = pdf_res.content
     assert pdf_bytes.startswith(b"%PDF-"), "Invalid PDF signature"
-    print(f"      OK! Generated valid PDF ({len(pdf_bytes):,} bytes).")
+
+    pdf_alias_res = client.get("/api/pdf")
+    assert pdf_alias_res.status_code == 200, f"PDF download via /api/pdf failed: {pdf_alias_res.status_code}"
+    print(f"      OK! Generated & downloaded valid PDF ({len(pdf_bytes):,} bytes).")
 
     # 7. Artifacts ZIP Download
     print("[7/7] Testing ZIP export via GET /api/artifacts/zip...")
