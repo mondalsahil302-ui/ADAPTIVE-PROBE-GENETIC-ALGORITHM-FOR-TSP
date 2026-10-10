@@ -398,7 +398,7 @@ function renderGenerationDetail() {
     ["Applied Operator", r.operator || "Initialization"],
     ["Population Diversity", r.diversity != null ? fmt(r.diversity, 4) : "—"],
     ["PMG Memory Trust", fmt(r.memory_trust, 3)],
-    ["Selective LKH-3", r.lkh_applied ? `Polished (${r.lkh_status || 'improved'}, ${fmt(r.lkh_duration, 4)}s)` : (S?.lkh?.calls_total > 0 ? `Active (${S.lkh.calls_total} calls total)` : "Scheduled (cadence=5)")],
+    ["Selective LKH-3", r.lkh_applied ? `Polished (${r.lkh_status || 'improved'}, ${fmt(r.lkh_duration, 4)}s)` : (S?.lkh?.calls_total > 0 ? `Active (${S.lkh.calls_total} calls total)` : `Scheduled (cadence=${S?.config?.lkh_cadence || 15})`)],
     ["Double-Bridge 4-Opt", r.double_bridge_applied ? "Perturbation Active" : "Normal"],
     ["Best Individual ID", r.best_id ?? "—"],
     ["New Global Best", r.new_global_best ? "Yes (★)" : "No"],

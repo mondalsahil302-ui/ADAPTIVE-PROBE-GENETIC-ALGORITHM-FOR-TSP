@@ -54,13 +54,13 @@ class GAConfig:
 
     # Bounded Selective LKH Parameters
     lkh_enabled: bool = True
-    lkh_cadence: int = 5
+    lkh_cadence: int = 15
     lkh_runs: int = 1
     lkh_individuals: int = 1
     lkh_max_seconds_per_call: float = 5.0
-    lkh_min_generation_gap: int = 3
-    lkh_trigger_stagnation: int = 5
-    lkh_max_calls_per_run: int = 12
+    lkh_min_generation_gap: int = 10
+    lkh_trigger_stagnation: int = 10
+    lkh_max_calls_per_run: int = 8
     lkh_max_trials: int = 50
     lkh_cache_enabled: bool = True
 
