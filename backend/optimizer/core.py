@@ -562,16 +562,16 @@ def run_generation(st: dict[str, Any], options: Optional[dict[str, Any]] = None)
     if lkh_opt_enabled and not is_already_stopped:
         calls_total = st.get("lkh_calls_total", 0)
         last_lkh_gen = st.get("last_lkh_generation", -999)
-        max_calls = getattr(cfg, "lkh_max_calls_per_run", 8)
-        min_gap = getattr(cfg, "lkh_min_generation_gap", 10)
-        stag_threshold = getattr(cfg, "lkh_trigger_stagnation", 10)
+        max_calls = getattr(cfg, "lkh_max_calls_per_run", 20)
+        min_gap = getattr(cfg, "lkh_min_generation_gap", 15)
+        stag_threshold = getattr(cfg, "lkh_trigger_stagnation", 9999)
         cadence = getattr(cfg, "lkh_cadence", 15)
 
         gap_satisfied = (gen - last_lkh_gen) >= min_gap
         budget_available = calls_total < max_calls
 
         stagnation_triggered = st.get("no_improvement", 0) >= stag_threshold
-        cadence_triggered = cadence > 0 and gen % cadence == 0
+        cadence_triggered = cadence > 0 and gen >= cadence and gen % cadence == 0
 
         should_trigger = (stagnation_triggered or cadence_triggered) and gap_satisfied and budget_available
 

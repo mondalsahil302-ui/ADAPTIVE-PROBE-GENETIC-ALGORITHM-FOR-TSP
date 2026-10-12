@@ -58,9 +58,9 @@ class GAConfig:
     lkh_runs: int = 1
     lkh_individuals: int = 1
     lkh_max_seconds_per_call: float = 5.0
-    lkh_min_generation_gap: int = 10
+    lkh_min_generation_gap: int = 15   # matches cadence; prevents double-firing
     lkh_trigger_stagnation: int = 9999  # effectively disabled; cadence-only triggering
-    lkh_max_calls_per_run: int = 8
+    lkh_max_calls_per_run: int = 20    # enough for 300 gens ÷ 15 cadence = 20 calls
     lkh_max_trials: int = 50
     lkh_cache_enabled: bool = True
 
@@ -92,6 +92,11 @@ def make_config(overrides: Optional[dict[str, Any] | GAConfig] = None, **kwargs)
     # Environment variable overrides for LKH
     if "LKH_ENABLED" in os.environ:
         cfg.lkh_enabled = os.environ["LKH_ENABLED"].lower() in ("true", "1", "yes")
+    if "LKH_CADENCE" in os.environ:
+        try:
+            cfg.lkh_cadence = int(os.environ["LKH_CADENCE"])
+        except ValueError:
+            pass
     if "LKH_MAX_SECONDS_PER_CALL" in os.environ:
         try:
             cfg.lkh_max_seconds_per_call = float(os.environ["LKH_MAX_SECONDS_PER_CALL"])

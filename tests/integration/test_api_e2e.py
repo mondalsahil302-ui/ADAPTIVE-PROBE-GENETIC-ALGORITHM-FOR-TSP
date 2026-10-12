@@ -41,7 +41,7 @@ class TestE2EPipeline(unittest.TestCase):
             stagnation_patience=30,
             k_neighbors=5,
             mutation_rate=0.15,
-            lkh_cadence=10
+            lkh_cadence=15
         )
         st = setup_state(inst, cfg)
 

@@ -146,7 +146,7 @@ class ExperimentService:
                 },
                 "lkh": {
                     "calls_total": st.get("lkh_calls_total", 0),
-                    "max_calls": getattr(st["config"], "lkh_max_calls_per_run", 8),
+                    "max_calls": getattr(st["config"], "lkh_max_calls_per_run", 20),
                     "last_duration": st.get("lkh_last_duration", 0.0),
                     "status": st.get("lkh_status", "idle"),
                     "last_generation": st.get("last_lkh_generation", -1),
