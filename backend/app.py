@@ -58,9 +58,9 @@ def home():
 @app.get("/frontend/style.css", tags=["Frontend"])
 @app.get("/assets/css/style.css", tags=["Frontend"])
 def get_style():
-    style_file = FRONTEND_DIR / "assets" / "css" / "style.css"
+    style_file = FRONTEND_DIR / "style.css"
     if not style_file.exists():
-        style_file = FRONTEND_DIR / "style.css"
+        style_file = FRONTEND_DIR / "assets" / "css" / "style.css"
     return FileResponse(
         style_file,
         media_type="text/css",
@@ -72,9 +72,9 @@ def get_style():
 @app.get("/frontend/app.js", tags=["Frontend"])
 @app.get("/assets/js/app.js", tags=["Frontend"])
 def get_script():
-    js_file = FRONTEND_DIR / "assets" / "js" / "app.js"
+    js_file = FRONTEND_DIR / "app.js"
     if not js_file.exists():
-        js_file = FRONTEND_DIR / "app.js"
+        js_file = FRONTEND_DIR / "assets" / "js" / "app.js"
     return FileResponse(
         js_file,
         media_type="application/javascript",
