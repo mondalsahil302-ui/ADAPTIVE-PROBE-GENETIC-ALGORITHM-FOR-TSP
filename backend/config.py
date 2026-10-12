@@ -59,7 +59,7 @@ class GAConfig:
     lkh_individuals: int = 1
     lkh_max_seconds_per_call: float = 5.0
     lkh_min_generation_gap: int = 10
-    lkh_trigger_stagnation: int = 10
+    lkh_trigger_stagnation: int = 9999  # effectively disabled; cadence-only triggering
     lkh_max_calls_per_run: int = 8
     lkh_max_trials: int = 50
     lkh_cache_enabled: bool = True

@@ -1039,7 +1039,17 @@ function stopPolling() {
 function startElapsedTimer() {
   if (elapsedTimer) return;
   elapsedTimer = setInterval(() => {
-    $("mElapsed").textContent = sec(getElapsed());
+    const el = $("mElapsed");
+    if (el) el.textContent = sec(getElapsed());
+  }, 500);
+}
+
+function restartElapsedTimer() {
+  // Force-restart when a new run begins so clock ticks from run.started, not null
+  if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+  elapsedTimer = setInterval(() => {
+    const el = $("mElapsed");
+    if (el) el.textContent = sec(getElapsed());
   }, 500);
 }
 
@@ -1131,6 +1141,7 @@ $("runBtn").onclick = async () => {
   try {
     const res = await api("/api/run-all/start", { method: "POST" });
     render(res);
+    restartElapsedTimer();  // reset clock from actual run.started
     startPolling();
   } catch (e) {
     alert(`Could not start run: ${e.message}`);
