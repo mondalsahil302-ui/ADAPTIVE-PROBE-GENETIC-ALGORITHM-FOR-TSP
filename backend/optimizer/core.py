@@ -429,9 +429,16 @@ def setup_state(instance: TSPInstance, overrides: Optional[dict[str, Any] | GACo
         "route_history": {0: list(map(int, best.tour))},
         "int_matrix": int_mat,
         "lkh_calls_total": 0,
+        "lkh_calls_successful": 0,
+        "lkh_calls_failed": 0,
+        "lkh_calls_timed_out": 0,
         "last_lkh_generation": -999,
         "lkh_last_duration": 0.0,
-        "lkh_status": "idle",
+        "lkh_total_duration": 0.0,
+        "lkh_status": "scheduled" if getattr(cfg, "lkh_enabled", True) else "disabled",
+        "lkh_is_running": False,
+        "lkh_next_scheduled": int(getattr(cfg, "lkh_cadence", 15)),
+        "lkh_last_error": None,
         "diagnostics": [f"Initialized {instance.name} ({instance.n} cities). Initial best cost: {best.cost:,.2f}"],
     }
 
@@ -553,8 +560,8 @@ def run_generation(st: dict[str, Any], options: Optional[dict[str, Any]] = None)
     # 6. Adaptive Selective LKH Optimization
     lkh_applied = False
     lkh_imp = 0
-    lkh_status = st.get("lkh_status", "idle")
     lkh_dur = 0.0
+    lkh_status = st.get("lkh_status", "scheduled")
 
     lkh_opt_enabled = options.get("selective_lkh", True) and getattr(cfg, "lkh_enabled", True)
     is_already_stopped = st.get("is_stopped", False) or st.get("converged", False)
@@ -567,19 +574,37 @@ def run_generation(st: dict[str, Any], options: Optional[dict[str, Any]] = None)
         stag_threshold = getattr(cfg, "lkh_trigger_stagnation", 9999)
         cadence = getattr(cfg, "lkh_cadence", 15)
 
-        gap_satisfied = (gen - last_lkh_gen) >= min_gap
+        gap_satisfied = (last_lkh_gen < 0) or ((gen - last_lkh_gen) >= min_gap)
         budget_available = calls_total < max_calls
 
-        stagnation_triggered = st.get("no_improvement", 0) >= stag_threshold
-        cadence_triggered = cadence > 0 and gen >= cadence and gen % cadence == 0
+        stagnation_triggered = (st.get("no_improvement", 0) >= stag_threshold) and (stag_threshold < 9000)
+        cadence_triggered = (cadence > 0 and gen >= cadence and gen % cadence == 0)
 
-        should_trigger = (stagnation_triggered or cadence_triggered) and gap_satisfied and budget_available
+        should_trigger = (cadence_triggered or stagnation_triggered) and gap_satisfied and budget_available
 
-        if not budget_available and (stagnation_triggered or cadence_triggered):
+        if not budget_available and (cadence_triggered or stagnation_triggered):
             lkh_status = "skipped_budget_exhausted"
-        elif not gap_satisfied and (stagnation_triggered or cadence_triggered):
+            st["lkh_status"] = lkh_status
+            skip_msg = f"[LKH] Skipped at Generation {gen} | Reason: Call budget exhausted ({calls_total}/{max_calls})"
+            st["diagnostics"].append(skip_msg)
+            print(skip_msg)
+        elif not gap_satisfied and (cadence_triggered or stagnation_triggered):
             lkh_status = "skipped_min_gap"
+            st["lkh_status"] = lkh_status
+            skip_msg = f"[LKH] Skipped at Generation {gen} | Reason: Min generation gap ({min_gap}) not satisfied"
+            st["diagnostics"].append(skip_msg)
+            print(skip_msg)
         elif should_trigger:
+            trigger_reason = "Cadence interval" if cadence_triggered else "Stagnation threshold"
+            trig_msg = f"[LKH] Triggered at Generation {gen} | Configured interval: {cadence} | Reason: {trigger_reason}"
+            start_msg = f"[LKH] Started | Generation: {gen}"
+            st["diagnostics"].append(trig_msg)
+            st["diagnostics"].append(start_msg)
+            print(trig_msg)
+            print(start_msg)
+
+            st["lkh_is_running"] = True
+            st["lkh_status"] = "running"
             t_lkh = time.perf_counter()
             lkh_applied = True
             num_inds = max(1, getattr(cfg, "lkh_individuals", 1))
@@ -623,24 +648,61 @@ def run_generation(st: dict[str, Any], options: Optional[dict[str, Any]] = None)
                         lkh_imp += 1
                         changed["selective_lkh"] += 1
                         pop[idx] = create_individual(cur.id, polished, cur.method + " + Selective LKH", gen, dist)
+                        st["lkh_calls_successful"] = st.get("lkh_calls_successful", 0) + 1
+                elif status_str == "timed_out":
+                    st["lkh_calls_timed_out"] = st.get("lkh_calls_timed_out", 0) + 1
+                elif "error" in status_str:
+                    st["lkh_calls_failed"] = st.get("lkh_calls_failed", 0) + 1
+                    st["lkh_last_error"] = status_str
 
-            lkh_elapsed = time.perf_counter() - t_lkh
+            lkh_elapsed = max(0.0, time.perf_counter() - t_lkh)
             timings["selective_lkh"] = lkh_elapsed
+            st["lkh_is_running"] = False
             st["last_lkh_generation"] = gen
             st["lkh_last_duration"] = lkh_elapsed
-            lkh_status = per_call_statuses[0] if per_call_statuses else "completed"
+            st["lkh_total_duration"] = st.get("lkh_total_duration", 0.0) + lkh_elapsed
+
+            if lkh_imp > 0:
+                lkh_status = "improved"
+            elif per_call_statuses:
+                lkh_status = per_call_statuses[0]
+            else:
+                lkh_status = "completed"
             st["lkh_status"] = lkh_status
+
+            comp_msg = f"[LKH] Completed | Generation: {gen} | Duration: {lkh_elapsed:.4f} s | Status: {lkh_status}"
+            st["diagnostics"].append(comp_msg)
+            print(comp_msg)
         else:
             timings["selective_lkh"] = 0.0
-            lkh_status = "idle"
+            # Retain existing meaningful status if LKH has previously run
+            if st.get("lkh_calls_total", 0) == 0:
+                lkh_status = "scheduled"
+                st["lkh_status"] = lkh_status
+            else:
+                lkh_status = st.get("lkh_status", "idle")
     else:
         timings["selective_lkh"] = 0.0
         if not lkh_opt_enabled:
             lkh_status = "disabled"
         elif is_already_stopped:
             lkh_status = "skipped_run_stopped"
+        st["lkh_status"] = lkh_status
 
-    st["lkh_status"] = lkh_status
+    # Compute next scheduled periodic LKH generation
+    curr_calls = st.get("lkh_calls_total", 0)
+    max_c = getattr(cfg, "lkh_max_calls_per_run", 20)
+    c_val = getattr(cfg, "lkh_cadence", 15)
+    if curr_calls < max_c and c_val > 0:
+        next_periodic = ((gen // c_val) + 1) * c_val
+    else:
+        next_periodic = None
+    st["lkh_next_scheduled"] = next_periodic
+
+    next_disp = f"Generation {next_periodic}" if next_periodic else "None (budget reached)"
+    ga_msg = f"[GA] Generation {gen} completed | Next periodic LKH: {next_disp}"
+    st["diagnostics"].append(ga_msg)
+    print(ga_msg)
 
     # Global best comparison with strict numerical tolerance
     tol = float(getattr(cfg, "improvement_tolerance", 1e-9))

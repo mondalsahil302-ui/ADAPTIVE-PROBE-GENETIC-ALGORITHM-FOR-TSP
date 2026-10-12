@@ -241,11 +241,20 @@ def selective_lkh_detailed(
 ) -> tuple[list[int], bool, str, float]:
     t0 = time.perf_counter()
     orig_cost = tour_length(tour, dist)
-    polished, polished_cost, status = solve_lkh_bounded(
-        tour=tour, dist=dist, runs=runs, max_trials=max_trials,
-        timeout_sec=timeout_sec, instance_name=instance_name,
-        cache_enabled=cache_enabled, int_matrix=int_matrix, lkh_exe=lkh_exe
-    )
-    dur = time.perf_counter() - t0
-    improved = (polished_cost + 1e-9 < orig_cost)
+    polished = tour[:]
+    polished_cost = orig_cost
+    status = "error"
+    try:
+        polished, polished_cost, status = solve_lkh_bounded(
+            tour=tour, dist=dist, runs=runs, max_trials=max_trials,
+            timeout_sec=timeout_sec, instance_name=instance_name,
+            cache_enabled=cache_enabled, int_matrix=int_matrix, lkh_exe=lkh_exe
+        )
+    except Exception as ex:
+        status = f"error: {ex}"
+        polished = tour[:]
+        polished_cost = orig_cost
+    finally:
+        dur = max(0.0, time.perf_counter() - t0)
+    improved = bool(polished_cost + 1e-9 < orig_cost)
     return polished, improved, status, dur

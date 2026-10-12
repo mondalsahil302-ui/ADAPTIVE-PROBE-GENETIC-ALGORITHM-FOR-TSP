@@ -200,6 +200,64 @@ function render(s) {
     $("liveMeta").textContent = "Upload a dataset or click Run Full Experiment to begin.";
   }
 
+  // Dedicated Selective LKH Execution & Telemetry Strip
+  const lkh = s.lkh || {};
+  const lkhCadence = Number(lkh.cadence || cfg.lkh_cadence || 15);
+  const lkhNext = lkh.next_scheduled_generation || (st.generation ? (Math.floor(st.generation / lkhCadence) + 1) * lkhCadence : lkhCadence);
+  const lkhMax = Number(lkh.max_calls || cfg.lkh_max_calls || 20);
+  const lkhCalls = Number(lkh.calls_total ?? 0);
+  const lkhLast = Number(lkh.last_duration ?? 0);
+  const lkhTotal = Number(lkh.total_duration ?? 0);
+  const lkhStatus = String(lkh.status || (lkh.enabled === false ? "disabled" : "scheduled"));
+
+  if ($("lkhLastDur")) $("lkhLastDur").textContent = `${fmt(lkhLast, 4)} s`;
+  if ($("lkhTotalDur")) $("lkhTotalDur").textContent = `${fmt(lkhTotal, 4)} s`;
+  if ($("lkhCallsCount")) $("lkhCallsCount").textContent = `${lkhCalls} / ${lkhMax}`;
+  if ($("lkhScheduleText")) {
+    if (lkh.enabled === false) {
+      $("lkhScheduleText").textContent = "Disabled by configuration";
+    } else {
+      $("lkhScheduleText").textContent = `Every ${lkhCadence} completed gens · Next: Gen ${lkhNext}`;
+    }
+  }
+
+  const lkhDot = $("lkhDot");
+  const lkhStatusText = $("lkhStatusText");
+  const lkhPill = $("lkhStatusPill");
+
+  if (lkhDot && lkhStatusText) {
+    lkhDot.className = "lkh-status-dot";
+    if (lkh.is_running || lkhStatus === "running") {
+      lkhDot.classList.add("running");
+      lkhStatusText.textContent = "Running LKH-3...";
+      if (lkhPill) lkhPill.style.borderColor = "var(--blue)";
+    } else if (lkhStatus === "completed" || lkhStatus === "improved" || lkhStatus === "verified") {
+      lkhDot.classList.add("completed");
+      lkhStatusText.textContent = lkhStatus === "improved" ? "Improved Tour" : "Verified (Optimum)";
+      if (lkhPill) lkhPill.style.borderColor = "var(--green)";
+    } else if (lkhStatus === "timed_out") {
+      lkhDot.classList.add("timed_out");
+      lkhStatusText.textContent = "Timed Out (Incumbent Kept)";
+      if (lkhPill) lkhPill.style.borderColor = "var(--amber)";
+    } else if (lkhStatus === "failed") {
+      lkhDot.classList.add("failed");
+      lkhStatusText.textContent = "Failed (Incumbent Kept)";
+      if (lkhPill) lkhPill.style.borderColor = "var(--red)";
+    } else if (lkhStatus === "budget_exhausted") {
+      lkhDot.classList.add("disabled");
+      lkhStatusText.textContent = `Budget Reached (${lkhCalls}/${lkhMax})`;
+      if (lkhPill) lkhPill.style.borderColor = "var(--text-dim)";
+    } else if (lkhStatus === "disabled") {
+      lkhDot.classList.add("disabled");
+      lkhStatusText.textContent = "Disabled";
+      if (lkhPill) lkhPill.style.borderColor = "var(--text-dim)";
+    } else {
+      lkhDot.classList.add("scheduled");
+      lkhStatusText.textContent = `Scheduled (Next: Gen ${lkhNext})`;
+      if (lkhPill) lkhPill.style.borderColor = "";
+    }
+  }
+
   // Terminal Stop Banner (Phase 1 & Phase 2 requirement)
   renderTerminalBanner(s);
 
@@ -399,10 +457,11 @@ function renderGenerationDetail() {
     ["Population Diversity", r.diversity != null ? fmt(r.diversity, 4) : "—"],
     ["PMG Memory Trust", fmt(r.memory_trust, 3)],
     ["Selective LKH-3", r.lkh_applied ? `Polished (${r.lkh_status || 'improved'}, ${fmt(r.lkh_duration, 4)}s)` : (S?.lkh?.calls_total > 0 ? `Active (${S.lkh.calls_total} calls total)` : `Scheduled (cadence=${S?.config?.lkh_cadence || 15})`)],
+    ["LKH Execution Time", r.lkh_applied ? `${fmt(r.lkh_duration, 4)} s` : (S?.lkh?.last_duration ? `${fmt(S.lkh.last_duration, 4)} s (latest)` : "0.0000 s")],
     ["Double-Bridge 4-Opt", r.double_bridge_applied ? "Perturbation Active" : "Normal"],
     ["Best Individual ID", r.best_id ?? "—"],
     ["New Global Best", r.new_global_best ? "Yes (★)" : "No"],
-    ["Execution Time", `${fmt(r.execution_time, 4)} s`],
+    ["Generation Time", `${fmt(r.execution_time, 4)} s`],
     ["No-Improvement Streak", r.no_improvement_count ?? "0"]
   ].map(([label, val]) => `
     <div class="diag-item">
@@ -1324,6 +1383,24 @@ const DEFAULT_PREVIEW_STATE = {
     k_neighbors: 15,
     mutation_rate: 0.12,
     lkh_cadence: 15
+  },
+  lkh: {
+    enabled: true,
+    cadence: 15,
+    min_gap: 15,
+    max_calls: 20,
+    timeout_seconds: 5.0,
+    status: "scheduled",
+    last_duration: 0.0,
+    total_duration: 0.0,
+    calls_total: 0,
+    calls_successful: 0,
+    calls_timed_out: 0,
+    calls_failed: 0,
+    last_call_generation: 0,
+    next_scheduled_generation: 15,
+    is_running: false,
+    last_error: ""
   },
   status: {
     generation: 0,

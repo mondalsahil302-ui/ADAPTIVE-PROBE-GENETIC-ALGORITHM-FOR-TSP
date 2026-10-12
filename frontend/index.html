@@ -171,9 +171,38 @@
           <span class="m-sub">Population edge entropy</span>
         </div>
         <div class="metric-card">
-          <span class="m-label">Elapsed Time</span>
+          <span class="m-label">Elapsed Experiment Time</span>
           <b class="m-val" id="mElapsed">00:00</b>
           <span class="m-sub" id="mEta">ETA: —</span>
+        </div>
+      </section>
+
+      <!-- Dedicated Selective LKH Execution & Telemetry Strip -->
+      <section class="glass-card lkh-telemetry-strip" id="lkhTelemetryCard">
+        <div class="lkh-strip-row">
+          <div class="lkh-strip-col">
+            <span class="lkh-col-label">⚡ Selective LKH-3 Status</span>
+            <div class="lkh-status-pill" id="lkhStatusPill">
+              <span class="lkh-status-dot" id="lkhDot"></span>
+              <span id="lkhStatusText">Scheduled (Next: Gen 15)</span>
+            </div>
+          </div>
+          <div class="lkh-strip-col">
+            <span class="lkh-col-label">LKH Execution Time (Latest)</span>
+            <b class="lkh-stat-val" id="lkhLastDur">0.000 s</b>
+          </div>
+          <div class="lkh-strip-col">
+            <span class="lkh-col-label">Total LKH Runtime</span>
+            <b class="lkh-stat-val" id="lkhTotalDur">0.000 s</b>
+          </div>
+          <div class="lkh-strip-col">
+            <span class="lkh-col-label">LKH Invocations</span>
+            <b class="lkh-stat-val" id="lkhCallsCount">0 / 20</b>
+          </div>
+          <div class="lkh-strip-col">
+            <span class="lkh-col-label">Interval & Cadence</span>
+            <span class="lkh-stat-sub" id="lkhScheduleText">Every 15 completed gens · Next: Gen 15</span>
+          </div>
         </div>
       </section>
 

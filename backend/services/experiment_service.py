@@ -146,11 +146,20 @@ class ExperimentService:
                 },
                 "lkh": {
                     "calls_total": st.get("lkh_calls_total", 0),
+                    "calls_successful": st.get("lkh_calls_successful", 0),
+                    "calls_failed": st.get("lkh_calls_failed", 0),
+                    "calls_timed_out": st.get("lkh_calls_timed_out", 0),
                     "max_calls": getattr(st["config"], "lkh_max_calls_per_run", 20),
-                    "last_duration": st.get("lkh_last_duration", 0.0),
-                    "status": st.get("lkh_status", "idle"),
+                    "last_duration": float(st.get("lkh_last_duration", 0.0)),
+                    "total_duration": float(st.get("lkh_total_duration", 0.0)),
+                    "status": st.get("lkh_status", "scheduled" if getattr(st["config"], "lkh_enabled", True) else "disabled"),
                     "last_generation": st.get("last_lkh_generation", -1),
+                    "next_scheduled_generation": st.get("lkh_next_scheduled", int(getattr(st["config"], "lkh_cadence", 15))),
+                    "cadence": getattr(st["config"], "lkh_cadence", 15),
+                    "min_gap": getattr(st["config"], "lkh_min_generation_gap", 15),
                     "enabled": getattr(st["config"], "lkh_enabled", True),
+                    "is_running": bool(st.get("lkh_is_running", False)),
+                    "last_error": st.get("lkh_last_error"),
                 },
                 "run": {
                     "active": self.run["active"],
@@ -287,16 +296,24 @@ class ExperimentService:
 
             st["lkh_calls_total"] = st.get("lkh_calls_total", 0) + 1
             st["lkh_last_duration"] = dur_total
+            st["lkh_total_duration"] = st.get("lkh_total_duration", 0.0) + dur_total
             st["last_lkh_generation"] = st.get("generation", 0)
 
             c_gain = max(0.0, orig_cost - polished_cost)
             if improved and c_gain > 1e-9:
+                st["lkh_calls_successful"] = st.get("lkh_calls_successful", 0) + 1
                 st["global_best_tour"] = polished[:]
                 st["global_best_cost"] = float(polished_cost)
                 st["lkh_status"] = "improved"
                 msg = f"LKH-3 polished tour from {orig_cost:,.2f} to {polished_cost:,.2f} (-{c_gain:,.2f}) in {dur_total:.4f}s"
                 st["diagnostics"].append(msg)
             else:
+                if status_str == "timed_out":
+                    st["lkh_calls_timed_out"] = st.get("lkh_calls_timed_out", 0) + 1
+                elif "error" in status_str:
+                    st["lkh_calls_failed"] = st.get("lkh_calls_failed", 0) + 1
+                    st["lkh_last_error"] = status_str
+
                 st["lkh_status"] = "verified_optimal" if (status_str == "improved" or c_gain == 0) else status_str
                 msg = f"LKH-3 verified best tour at cost {polished_cost:,.2f} in {dur_total:.4f}s"
                 st["diagnostics"].append(msg)

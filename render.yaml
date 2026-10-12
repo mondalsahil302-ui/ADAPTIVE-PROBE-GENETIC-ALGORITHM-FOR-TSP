@@ -11,14 +11,16 @@ services:
         value: .
       - key: LKH_ENABLED
         value: "true"
+      - key: LKH_CADENCE
+        value: "15"
+      - key: LKH_MIN_GENERATION_GAP
+        value: "15"
+      - key: LKH_TRIGGER_STAGNATION
+        value: "9999"
+      - key: LKH_MAX_CALLS_PER_RUN
+        value: "20"
       - key: LKH_MAX_SECONDS_PER_CALL
         value: "5.0"
-      - key: LKH_MIN_GENERATION_GAP
-        value: "10"
-      - key: LKH_TRIGGER_STAGNATION
-        value: "10"
-      - key: LKH_MAX_CALLS_PER_RUN
-        value: "8"
       - key: LKH_MAX_TRIALS
         value: "50"
       - key: LKH_RUNS

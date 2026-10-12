@@ -64,9 +64,33 @@ class GAConfig:
     lkh_max_trials: int = 50
     lkh_cache_enabled: bool = True
 
+    @property
+    def lkh_min_gap(self) -> int:
+        return self.lkh_min_generation_gap
+
+    @lkh_min_gap.setter
+    def lkh_min_gap(self, val: int):
+        self.lkh_min_generation_gap = int(val)
+
+    @property
+    def lkh_max_calls(self) -> int:
+        return self.lkh_max_calls_per_run
+
+    @lkh_max_calls.setter
+    def lkh_max_calls(self, val: int):
+        self.lkh_max_calls_per_run = int(val)
+
+    @property
+    def lkh_timeout_seconds(self) -> float:
+        return self.lkh_max_seconds_per_call
+
+    @lkh_timeout_seconds.setter
+    def lkh_timeout_seconds(self, val: float):
+        self.lkh_max_seconds_per_call = float(val)
+
 
 def make_config(overrides: Optional[dict[str, Any] | GAConfig] = None, **kwargs) -> GAConfig:
-    """Builds a GAConfig instance with priority given to kwargs, overrides, and environment variables."""
+    """Builds a GAConfig instance with priority given to kwargs/overrides > env vars > defaults."""
     if isinstance(overrides, GAConfig):
         cfg = copy.copy(overrides)
         combined = kwargs
@@ -75,21 +99,7 @@ def make_config(overrides: Optional[dict[str, Any] | GAConfig] = None, **kwargs)
         combined = dict(overrides or {})
         combined.update(kwargs)
 
-    if "stagnation_patience" in combined and "no_improvement_limit" not in combined:
-        combined["no_improvement_limit"] = int(combined["stagnation_patience"])
-
-    for k, v in combined.items():
-        if hasattr(cfg, k):
-            setattr(cfg, k, v)
-
-    cfg.no_improvement_limit = int(cfg.no_improvement_limit)
-    cfg.stagnation_patience = cfg.no_improvement_limit
-    cfg.population_size = max(4, int(cfg.population_size))
-    cfg.nn_count = min(int(cfg.nn_count), cfg.population_size)
-    cfg.greedy_count = min(int(cfg.greedy_count), max(0, cfg.population_size - cfg.nn_count))
-    cfg.random_count = max(0, cfg.population_size - cfg.nn_count - cfg.greedy_count)
-
-    # Environment variable overrides for LKH
+    # 1. Environment variable overrides (intermediate priority over defaults)
     if "LKH_ENABLED" in os.environ:
         cfg.lkh_enabled = os.environ["LKH_ENABLED"].lower() in ("true", "1", "yes")
     if "LKH_CADENCE" in os.environ:
@@ -129,6 +139,27 @@ def make_config(overrides: Optional[dict[str, Any] | GAConfig] = None, **kwargs)
             pass
     if "LKH_CACHE_ENABLED" in os.environ:
         cfg.lkh_cache_enabled = os.environ["LKH_CACHE_ENABLED"].lower() in ("true", "1", "yes")
+
+    # 2. Explicit overrides and kwargs (highest priority)
+    if "stagnation_patience" in combined and "no_improvement_limit" not in combined:
+        combined["no_improvement_limit"] = int(combined["stagnation_patience"])
+    if "lkh_min_gap" in combined and "lkh_min_generation_gap" not in combined:
+        combined["lkh_min_generation_gap"] = int(combined["lkh_min_gap"])
+    if "lkh_max_calls" in combined and "lkh_max_calls_per_run" not in combined:
+        combined["lkh_max_calls_per_run"] = int(combined["lkh_max_calls"])
+    if "lkh_timeout_seconds" in combined and "lkh_max_seconds_per_call" not in combined:
+        combined["lkh_max_seconds_per_call"] = float(combined["lkh_timeout_seconds"])
+
+    for k, v in combined.items():
+        if hasattr(cfg, k):
+            setattr(cfg, k, v)
+
+    cfg.no_improvement_limit = int(cfg.no_improvement_limit)
+    cfg.stagnation_patience = cfg.no_improvement_limit
+    cfg.population_size = max(4, int(cfg.population_size))
+    cfg.nn_count = min(int(cfg.nn_count), cfg.population_size)
+    cfg.greedy_count = min(int(cfg.greedy_count), max(0, cfg.population_size - cfg.nn_count))
+    cfg.random_count = max(0, cfg.population_size - cfg.nn_count - cfg.greedy_count)
 
     return cfg
 
